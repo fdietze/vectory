@@ -18,6 +18,12 @@ case class Vec2(
   @JSExport def cross(that: Vec2) = this.x * that.y - this.y * that.x
 
   @JSExport def angle = Math.atan2(y, x)
+
+  def toTuple = (x, y)
+}
+
+object Vec2 {
+  def apply(tuple: (Double, Double)) = new Vec2(tuple._1, tuple._2)
 }
 
 @JSExport

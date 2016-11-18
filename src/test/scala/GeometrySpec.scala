@@ -12,6 +12,15 @@ class GeometrySpec extends Specification {
         v.width mustEqual 5
         v.height mustEqual 7
       }
+      "from tuple" >> {
+        val v = Vec2((5, 7))
+        v.x mustEqual 5
+        v.y mustEqual 7
+      }
+      "to tuple" >> {
+        val v = Vec2(5, 7)
+        v.toTuple mustEqual (5, 7)
+      }
       "addition" >> {
         val a = Vec2(5, 7)
         val b = Vec2(2, 3)
