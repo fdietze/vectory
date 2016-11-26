@@ -28,6 +28,13 @@ class GeometrySpec extends Specification {
         c.x mustEqual 7
         c.y mustEqual 10
       }
+      "scalar addition" >> {
+        val a = Vec2(5, 7)
+        val b = 3
+        val c = a + b
+        c.x mustEqual 8
+        c.y mustEqual 10
+      }
       "substraction" >> {
         val a = Vec2(5, 7)
         val b = Vec2(2, 3)

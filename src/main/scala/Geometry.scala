@@ -12,6 +12,7 @@ case class Vec2(
   @JSExport def width = x
   @JSExport def height = y
   @JSExport("plus") def +(that: Vec2) = Vec2(this.x + that.x, this.y + that.y)
+  @JSExport("plus") def +(that: Double) = Vec2(this.x + that, this.y + that)
   @JSExport("minus") def -(that: Vec2) = Vec2(this.x - that.x, this.y - that.y)
   @JSExport("times") def *(a: Double) = Vec2(this.x * a, this.y * a)
   @JSExport("div") def /(a: Double) = Vec2(this.x / a, this.y / a)
