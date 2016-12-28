@@ -2,8 +2,8 @@ organization in ThisBuild := "com.github.fdietze"
 name in ThisBuild := "vectory"
 version in ThisBuild := "0.1.0-SNAPSHOT"
 
-scalaVersion in ThisBuild := "2.12.0"
-crossScalaVersions in ThisBuild := Seq("2.10.6", "2.11.8", "2.12.0")
+scalaVersion in ThisBuild := "2.12.1"
+crossScalaVersions in ThisBuild := Seq("2.10.6", "2.11.8", "2.12.1")
 
 lazy val root = project.in(file(".")).
   aggregate(vectoryJS, vectoryJVM).
@@ -15,7 +15,7 @@ lazy val root = project.in(file(".")).
 lazy val vectory = (crossProject.crossType(CrossType.Pure) in file("."))
   .settings(
     libraryDependencies ++= (
-      "org.scala-js" %% "scalajs-stubs" % "0.6.13" ::
+      "org.scala-js" %% "scalajs-stubs" % scalaJSVersion ::
       "org.specs2" %% "specs2-core" % "3.8.6" % "test" ::
       Nil
     ),
