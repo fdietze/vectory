@@ -233,4 +233,6 @@ object Algorithms {
     }
 
   }
+
+  def convexHull(points: Iterable[Vec2]) = ConvexHull2D(points)
 }
