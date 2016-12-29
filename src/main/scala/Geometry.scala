@@ -16,7 +16,11 @@ case class Vec2(
   @JSExport("minus") def -(that: Vec2) = Vec2(this.x - that.x, this.y - that.y)
   @JSExport("times") def *(a: Double) = Vec2(this.x * a, this.y * a)
   @JSExport("div") def /(a: Double) = Vec2(this.x / a, this.y / a)
+  @JSExport def dot(that: Vec2) = this.x * that.x + this.y * that.y
   @JSExport def cross(that: Vec2) = this.x * that.y - this.y * that.x
+
+  @JSExport def lengthSq = x * x + y * y
+  @JSExport def length = Math.sqrt(lengthSq)
 
   @JSExport def angle = Math.atan2(y, x)
 

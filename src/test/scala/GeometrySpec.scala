@@ -59,6 +59,15 @@ class GeometrySpec extends Specification {
         val b = Vec2(2, 3)
         (a cross b) mustEqual 2
       }
+      "dotProduct" >> {
+        val a = Vec2(6, 8)
+        val b = Vec2(2, 3)
+        (a dot b) mustEqual 36
+      }
+      "length" >> {
+        Vec2(3, 4).lengthSq mustEqual 25
+        Vec2(3, 4).length mustEqual 5
+      }
     }
 
     "Line" >> {
