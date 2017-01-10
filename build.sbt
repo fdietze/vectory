@@ -44,6 +44,8 @@ lazy val vectoryJS = vectory.js
 // publishing
 pgpSecretRing in Global := file("secring.gpg")
 pgpPublicRing in Global := file("pubring.gpg")
+pgpPassphrase in Global := Some("".toCharArray)
+
 organization in Global := "com.github.fdietze"
 
 pomExtra in Global := {
