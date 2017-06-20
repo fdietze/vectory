@@ -1,8 +1,8 @@
 name in ThisBuild := "vectory"
 version in ThisBuild := "0.1.0"
 
-scalaVersion in ThisBuild := "2.12.1"
-crossScalaVersions in ThisBuild := Seq("2.10.6", "2.11.8", "2.12.1")
+scalaVersion in ThisBuild := "2.12.2"
+crossScalaVersions in ThisBuild := Seq("2.10.6", "2.11.11", "2.12.2")
 
 lazy val root = project.in(file(".")).
   aggregate(vectoryJS, vectoryJVM).
