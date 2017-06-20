@@ -4,25 +4,24 @@ import scala.scalajs.js
 import scala.scalajs.js.annotation.{JSExport, JSExportAll}
 import annotation.meta.field
 
-@JSExport
 case class Vec2(
-  @(JSExport @field) x: Double,
-  @(JSExport @field) y: Double
+  x: Double,
+  y: Double
 ) {
-  @JSExport def width = x
-  @JSExport def height = y
-  @JSExport("plus") def +(that: Vec2) = Vec2(this.x + that.x, this.y + that.y)
-  @JSExport("plus") def +(that: Double) = Vec2(this.x + that, this.y + that)
-  @JSExport("minus") def -(that: Vec2) = Vec2(this.x - that.x, this.y - that.y)
-  @JSExport("times") def *(a: Double) = Vec2(this.x * a, this.y * a)
-  @JSExport("div") def /(a: Double) = Vec2(this.x / a, this.y / a)
-  @JSExport def dot(that: Vec2) = this.x * that.x + this.y * that.y
-  @JSExport def cross(that: Vec2) = this.x * that.y - this.y * that.x
+  def width = x
+  def height = y
+  def +(that: Vec2) = Vec2(this.x + that.x, this.y + that.y)
+  def +(that: Double) = Vec2(this.x + that, this.y + that)
+  def -(that: Vec2) = Vec2(this.x - that.x, this.y - that.y)
+  def *(a: Double) = Vec2(this.x * a, this.y * a)
+  def /(a: Double) = Vec2(this.x / a, this.y / a)
+  def dot(that: Vec2) = this.x * that.x + this.y * that.y
+  def cross(that: Vec2) = this.x * that.y - this.y * that.x
 
-  @JSExport def lengthSq = x * x + y * y
-  @JSExport def length = Math.sqrt(lengthSq)
+  def lengthSq = x * x + y * y
+  def length = Math.sqrt(lengthSq)
 
-  @JSExport def angle = Math.atan2(y, x)
+  def angle = Math.atan2(y, x)
 
   def toTuple = (x, y)
 }
@@ -31,28 +30,27 @@ object Vec2 {
   def apply(tuple: (Double, Double)) = new Vec2(tuple._1, tuple._2)
 }
 
-@JSExport
 case class Line(
-  @(JSExport @field) start: Vec2,
-  @(JSExport @field) end: Vec2
+  start: Vec2,
+  end:   Vec2
 ) {
-  @JSExport def x1 = start.x
-  @JSExport def y1 = start.y
-  @JSExport def x2 = end.x
-  @JSExport def y2 = end.y
+  def x1 = start.x
+  def y1 = start.y
+  def x2 = end.x
+  def y2 = end.y
 
-  @JSExport def vector = end - start
-  @JSExport def center = (start + end) / 2
+  def vector = end - start
+  def center = (start + end) / 2
 
-  @JSExport def leftOf(p: Vec2) = (vector cross (p - start)) > 0
-  @JSExport def rightOf(p: Vec2) = !leftOf(p)
+  def leftOf(p: Vec2) = (vector cross (p - start)) > 0
+  def rightOf(p: Vec2) = !leftOf(p)
 
   def intersect(that: Line): Option[Algorithms.LineIntersection] = Algorithms.intersect(this, that)
   def intersect(r: ConvexPolygon): Either[Boolean, Seq[Vec2]] = Algorithms.intersect(r, this)
   def cutBy(r: ConvexPolygon): Option[Line] = Algorithms.cutLineByPolyAtStartOrEnd(this, r)
   def clampBy(r: ConvexPolygon): Option[Line] = Algorithms.clampLineByPoly(this, r)
 
-  @JSExport def length = {
+  def length = {
     val dx = start.x - end.x
     val dy = start.y - end.y
     Math.sqrt(dx * dx + dy * dy)
@@ -76,32 +74,31 @@ trait ConvexPolygon {
 
   def intersect(line: Line) = Algorithms.intersect(this, line)
 
-  @JSExport def includes(v: Vec2): Boolean = edges.forall(_ rightOf v)
-  @JSExport def includes(l: Line): Boolean = includes(l.start) && includes(l.end)
-  @JSExport def isOverlapping(that: ConvexPolygon): Boolean
+  def includes(v: Vec2): Boolean = edges.forall(_ rightOf v)
+  def includes(l: Line): Boolean = includes(l.start) && includes(l.end)
+  def isOverlapping(that: ConvexPolygon): Boolean
 }
 
 trait Rect extends ConvexPolygon {
   // center
-  @JSExport def pos: Vec2
-  @JSExport def x = pos.x
-  @JSExport def y = pos.y
+  def pos: Vec2
+  def x = pos.x
+  def y = pos.y
 
-  @JSExport def size: Vec2
-  @JSExport def width = size.x
-  @JSExport def height = size.y
+  def size: Vec2
+  def width = size.x
+  def height = size.y
 
-  @JSExport def angle: Double
+  def angle: Double
 
-  @JSExport def minCorner: Vec2
-  @JSExport def maxCorner: Vec2
+  def minCorner: Vec2
+  def maxCorner: Vec2
 }
 
 object Rect {
   def apply(pos: Vec2, size: Vec2, angle: Double = 0): Rect = if (angle == 0) AARect(pos, size) else RotatedRect(pos, size, angle)
 }
 
-@JSExport
 case class RotatedRect(pos: Vec2, size: Vec2, angle: Double) extends Rect {
   import Math.{sin, cos}
 
@@ -121,7 +118,6 @@ case class RotatedRect(pos: Vec2, size: Vec2, angle: Double) extends Rect {
   def isOverlapping(that: ConvexPolygon): Boolean = ???
 }
 
-@JSExport
 case class AARect(pos: Vec2, size: Vec2) extends Rect {
   override def angle = 0
 
@@ -209,7 +205,7 @@ object Algorithms {
     // If there are two intersections the resulting line
     // can be wrong
     intersect(poly, line) match {
-      case Left(true) => None // line inside
+      case Left(true)  => None // line inside
       case Left(false) => Some(line) // line outside
       case Right(intersections) =>
         // with the assumption that the poly covers one line end,
@@ -223,7 +219,7 @@ object Algorithms {
 
   def clampLineByPoly(line: Line, poly: ConvexPolygon): Option[Line] = {
     (poly includes line.start, poly includes line.end) match {
-      case (true, true) => Some(line)
+      case (true, true)  => Some(line)
       case (true, false) => Some(Line(line.start, intersect(poly, line).right.get.head))
       case (false, true) => Some(Line(intersect(poly, line).right.get.head, line.end))
       case (false, false) =>
