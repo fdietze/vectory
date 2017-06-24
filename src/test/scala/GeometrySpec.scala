@@ -165,6 +165,23 @@ class GeometrySpec extends Specification {
         val l = Line(Vec2(5, 5), Vec2(8, 9))
         l.length mustEqual 5
       }
+
+      "distance to point" >> {
+        val l = Line(Vec2(5, 5), Vec2(9, 5))
+        val p = Vec2(7, 3)
+        l.distance(p) mustEqual 2
+      }
+
+      "distance to point" >> {
+        val l = Line(Vec2(5, 5), Vec2(9, 5))
+        val p = Vec2(7, 8)
+        l.distance(p) mustEqual 3
+      }
+      "distance to point" >> {
+        val l = Line(Vec2(-1, -1), Vec2(1, 3))
+        val p = Vec2(4, -1)
+        l.distance(p) mustEqual Math.sqrt(20)
+      }
     }
 
     "Circle" >> {
@@ -352,57 +369,57 @@ class GeometrySpec extends Specification {
 
     "Circle AARect intersection" >> {
       "not intersecting" >> {
-        val c = Circle(Vec2(3,4), 2)
-        val r = AARect(Vec2(30, 50), Vec2(20,5))
+        val c = Circle(Vec2(3, 4), 2)
+        val r = AARect(Vec2(30, 50), Vec2(20, 5))
         (c intersects r) mustEqual false
         (r intersects c) mustEqual false
       }
 
       "rect completely inside over circle center" >> {
-        val c = Circle(Vec2(3,4), 20)
-        val r = AARect(Vec2(2, 3), Vec2(2,5))
+        val c = Circle(Vec2(3, 4), 20)
+        val r = AARect(Vec2(2, 3), Vec2(2, 5))
         (c intersects r) mustEqual true
         (r intersects c) mustEqual true
       }
 
       "rect completely inside not over circle center" >> {
-        val c = Circle(Vec2(3,4), 20)
-        val r = AARect(Vec2(-3, 3), Vec2(2,5))
+        val c = Circle(Vec2(3, 4), 20)
+        val r = AARect(Vec2(-3, 3), Vec2(2, 5))
         (c intersects r) mustEqual true
         (r intersects c) mustEqual true
       }
 
       "circle completely inside rect" >> {
-        val c = Circle(Vec2(3,4), 2)
-        val r = AARect(Vec2(1, 1), Vec2(8,9))
+        val c = Circle(Vec2(3, 4), 2)
+        val r = AARect(Vec2(1, 1), Vec2(8, 9))
         (c intersects r) mustEqual true
         (r intersects c) mustEqual true
       }
 
       "overlapping: circle center inside rect" >> {
-        val c = Circle(Vec2(3,1), 2)
-        val r = AARect(Vec2(1, 1), Vec2(6,4))
+        val c = Circle(Vec2(3, 1), 2)
+        val r = AARect(Vec2(1, 1), Vec2(6, 4))
         (c intersects r) mustEqual true
         (r intersects c) mustEqual true
       }
 
       "overlapping: circle center outside rect" >> {
-        val c = Circle(Vec2(5,1), 2)
-        val r = AARect(Vec2(1, 1), Vec2(6,4))
+        val c = Circle(Vec2(5, 1), 2)
+        val r = AARect(Vec2(1, 1), Vec2(6, 4))
         (c intersects r) mustEqual true
         (r intersects c) mustEqual true
       }
 
       "overlapping: circle center close to corner inside" >> {
-        val c = Circle(Vec2(3,3), 4)
-        val r = AARect(Vec2(-9, -9), Vec2(20,20)) // top right corner at (1,1)
+        val c = Circle(Vec2(3, 3), 4)
+        val r = AARect(Vec2(-9, -9), Vec2(20, 20)) // top right corner at (1,1)
         (c intersects r) mustEqual true
         (r intersects c) mustEqual true
       }
 
       "overlapping: circle center close to corner outside" >> {
-        val c = Circle(Vec2(4,4), 4)
-        val r = AARect(Vec2(-9, -9), Vec2(20,20)) // top right corner at (1,1)
+        val c = Circle(Vec2(4, 4), 4)
+        val r = AARect(Vec2(-9, -9), Vec2(20, 20)) // top right corner at (1,1)
         (c intersects r) mustEqual false
         (r intersects c) mustEqual false
       }

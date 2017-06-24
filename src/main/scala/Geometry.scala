@@ -1,7 +1,7 @@
 package vectory
 
 import scala.scalajs.js
-import scala.scalajs.js.annotation.{JSExport, JSExportAll}
+import scala.scalajs.js.annotation.{ JSExport, JSExportAll }
 import annotation.meta.field
 
 case class Vec2(x: Double, y: Double) {
@@ -24,7 +24,6 @@ case class Vec2(x: Double, y: Double) {
   def length = Math.sqrt(lengthSq)
   def area = x * y
 
-
   def angle = Math.atan2(y, x)
 
   def toTuple = (x, y)
@@ -33,8 +32,8 @@ case class Vec2(x: Double, y: Double) {
 object Vec2 {
   def apply(tuple: (Double, Double)) = new Vec2(tuple._1, tuple._2)
   def apply(x: Double) = new Vec2(x, x)
-  def apply(v: {def x:Double;def y:Double}) = new Vec2(v.x, v.y)
-  def dim(v: {def width:Double;def height:Double}) = new Vec2(v.width, v.height)
+  def apply(v: { def x: Double; def y: Double }) = new Vec2(v.x, v.y)
+  def dim(v: { def width: Double; def height: Double }) = new Vec2(v.width, v.height)
 }
 
 case class Line(
@@ -52,6 +51,7 @@ case class Line(
   def leftOf(p: Vec2) = (vector cross (p - start)) > 0
   def rightOf(p: Vec2) = !leftOf(p)
 
+  def distance(that: Vec2): Double = Algorithms.distancePointLine(that.x, that.y, x1, y1, x2, y2)
   def intersect(that: Line): Option[Algorithms.LineIntersection] = Algorithms.intersect(this, that)
   def intersect(r: ConvexPolygon): Either[Boolean, Seq[Vec2]] = Algorithms.intersect(r, this)
   def cutBy(r: ConvexPolygon): Option[Line] = Algorithms.cutLineByPolyAtStartOrEnd(this, r)
@@ -75,12 +75,12 @@ case class Line(
   override def hashCode = start.hashCode * end.hashCode // multiply to be commutative
 }
 
-case class Circle(center:Vec2, r:Double) {
+case class Circle(center: Vec2, r: Double) {
   def x = center.x
   def y = center.y
   def d = r * 2
 
-  def intersects(rect:AARect) = Algorithms.intersect(this, rect)
+  def intersects(rect: AARect) = Algorithms.intersect(this, rect)
 }
 
 trait ConvexPolygon {
@@ -114,7 +114,7 @@ object Rect {
 }
 
 case class RotatedRect(center: Vec2, size: Vec2, angle: Double) extends Rect {
-  import Math.{sin, cos}
+  import Math.{ sin, cos }
 
   lazy val toRight = Vec2(cos(angle), sin(angle)) * (width / 2)
   lazy val toBottom = Vec2(-sin(angle), cos(angle)) * (height / 2)
@@ -154,11 +154,17 @@ case class AARect(center: Vec2, size: Vec2) extends Rect {
     case poly => ???
   }
 
-  def intersects(circle:Circle) = Algorithms.intersect(circle, this)
+  def intersects(circle: Circle) = Algorithms.intersect(circle, this)
 }
 
 object Algorithms {
   def slidingRotate[T](l: Seq[T]): IndexedSeq[Seq[T]] = (l :+ l.head).sliding(2).toIndexedSeq
+
+  def distancePointLine(x0: Double, y0: Double, x1: Double, y1: Double, x2: Double, y2: Double): Double = {
+    // Point: x0, y0
+    // Line: x1, y1 --- x2, y2
+    Math.abs((y2 - y1) * x0 - (x2 - x1) * y0 + x2 * y1 - y2 * x1) / Math.sqrt((y2 - y1) * (y2 - y1) + (x2 - x1) * (x2 - x1))
+  }
 
   case class LineIntersection(pos: Vec2, onLine1: Boolean, onLine2: Boolean)
   def intersect(line1: Line, line2: Line): Option[LineIntersection] = {
@@ -214,29 +220,29 @@ object Algorithms {
     else Left(poly includes line)
   }
 
-  def intersect(circle:Circle, rect: AARect):Boolean = {
+  def intersect(circle: Circle, rect: AARect): Boolean = {
     // https://stackoverflow.com/questions/401847/circle-rectangle-collision-detection-intersection/402010#402010
-   // val circleDistance = (circle.center - rect.center).abs
+    // val circleDistance = (circle.center - rect.center).abs
 
-   //  if (circleDistance.x > (rect.width/2 + circle.r)) return false
-   //  if (circleDistance.y > (rect.height/2 + circle.r)) return false
+    //  if (circleDistance.x > (rect.width/2 + circle.r)) return false
+    //  if (circleDistance.y > (rect.height/2 + circle.r)) return false
 
-   //  if (circleDistance.x <= (rect.width/2)) return true
-   //  if (circleDistance.y <= (rect.height/2)) return true
+    //  if (circleDistance.x <= (rect.width/2)) return true
+    //  if (circleDistance.y <= (rect.height/2)) return true
 
-   //  val cornerDistance_sq = (circleDistance - rect.size / 2).lengthSq
+    //  val cornerDistance_sq = (circleDistance - rect.size / 2).lengthSq
 
-   //  return cornerDistance_sq <= circle.r*circle.r
-      intersectCircleAARect(circle.center.x, circle.center.y, circle.r, rect.center.x, rect.center.y, rect.size.width, rect.size.height)
+    //  return cornerDistance_sq <= circle.r*circle.r
+    intersectCircleAARect(circle.center.x, circle.center.y, circle.r, rect.center.x, rect.center.y, rect.size.width, rect.size.height)
   }
 
-  def intersectCircleAARect(cx:Double, cy:Double, cr:Double, rcx:Double, rcy:Double, rw:Double, rh:Double):Boolean = {
+  def intersectCircleAARect(cx: Double, cy: Double, cr: Double, rcx: Double, rcy: Double, rw: Double, rh: Double): Boolean = {
 
-   val circleDistanceX = Math.abs(cx - rcx)
-   val circleDistanceY = Math.abs(cy - rcy)
+    val circleDistanceX = Math.abs(cx - rcx)
+    val circleDistanceY = Math.abs(cy - rcy)
 
-   val rwh = rw*0.5
-   val rhh = rh*0.5
+    val rwh = rw * 0.5
+    val rhh = rh * 0.5
 
     if (circleDistanceX > (rwh + cr)) return false
     if (circleDistanceY > (rhh + cr)) return false
@@ -246,9 +252,9 @@ object Algorithms {
 
     val cornerDistanceX = circleDistanceX - rwh
     val cornerDistanceY = circleDistanceY - rhh
-    val cornerDistance_sq = cornerDistanceX*cornerDistanceX + cornerDistanceY*cornerDistanceY
+    val cornerDistance_sq = cornerDistanceX * cornerDistanceX + cornerDistanceY * cornerDistanceY
 
-    return cornerDistance_sq <= cr*cr
+    return cornerDistance_sq <= cr * cr
   }
 
   def cutLineByPolyAtStartOrEnd(line: Line, poly: ConvexPolygon): Option[Line] = {
