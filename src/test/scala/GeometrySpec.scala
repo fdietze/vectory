@@ -12,8 +12,23 @@ class GeometrySpec extends Specification {
         v.width mustEqual 5
         v.height mustEqual 7
       }
+      "factory from one argument" >> {
+        val v = Vec2(5)
+        v.x mustEqual 5
+        v.y mustEqual 5
+      }
+      "factory from structural type: x, y" >> {
+        val v = Vec2(new { val x = 5.0; val y = 7.0 })
+        v.x mustEqual 5
+        v.y mustEqual 7
+      }
+      "factory from structural type: width, height" >> {
+        val v = Vec2.dim(new { val width = 5.0; val height = 7.0 })
+        v.x mustEqual 5
+        v.y mustEqual 7
+      }
       "from tuple" >> {
-        val v = Vec2((5, 7))
+        val v = Vec2((5.0, 7.0))
         v.x mustEqual 5
         v.y mustEqual 7
       }
@@ -42,6 +57,13 @@ class GeometrySpec extends Specification {
         c.x mustEqual 3
         c.y mustEqual 4
       }
+      "scalar substraction" >> {
+        val a = Vec2(5, 7)
+        val b = 3
+        val c = a - b
+        c.x mustEqual 2
+        c.y mustEqual 4
+      }
       "multiplication" >> {
         val a = Vec2(5, 7)
         val c = a * 3
@@ -53,6 +75,19 @@ class GeometrySpec extends Specification {
         val c = a / 2
         c.x mustEqual 3
         c.y mustEqual 4
+      }
+      "unary -" >> {
+        val a = -Vec2(6, 8)
+        a.x mustEqual -6
+        a.y mustEqual -8
+      }
+      "abs" >> {
+        val a = Vec2(6, 8).abs
+        a.x mustEqual 6
+        a.y mustEqual 8
+        val b = Vec2(-6, -8).abs
+        b.x mustEqual 6
+        b.y mustEqual 8
       }
       "crossProduct" >> {
         val a = Vec2(6, 8)
@@ -68,6 +103,10 @@ class GeometrySpec extends Specification {
         Vec2(3, 4).lengthSq mustEqual 25
         Vec2(3, 4).length mustEqual 5
       }
+      "area" >> {
+        Vec2(3, 4).area mustEqual 12
+        Vec2(3, 0).area mustEqual 0
+    }
     }
 
     "Line" >> {

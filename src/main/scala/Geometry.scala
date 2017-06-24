@@ -4,15 +4,17 @@ import scala.scalajs.js
 import scala.scalajs.js.annotation.{JSExport, JSExportAll}
 import annotation.meta.field
 
-case class Vec2(
-  x: Double,
-  y: Double
-) {
+case class Vec2(x: Double, y: Double) {
   def width = x
   def height = y
+
+  def unary_- = Vec2(-x, -y)
+  def abs = Vec2(Math.abs(x), Math.abs(y))
+
   def +(that: Vec2) = Vec2(this.x + that.x, this.y + that.y)
   def +(that: Double) = Vec2(this.x + that, this.y + that)
   def -(that: Vec2) = Vec2(this.x - that.x, this.y - that.y)
+  def -(that: Double) = Vec2(this.x - that, this.y - that)
   def *(a: Double) = Vec2(this.x * a, this.y * a)
   def /(a: Double) = Vec2(this.x / a, this.y / a)
   def dot(that: Vec2) = this.x * that.x + this.y * that.y
@@ -20,6 +22,8 @@ case class Vec2(
 
   def lengthSq = x * x + y * y
   def length = Math.sqrt(lengthSq)
+  def area = x * y
+
 
   def angle = Math.atan2(y, x)
 
@@ -28,6 +32,9 @@ case class Vec2(
 
 object Vec2 {
   def apply(tuple: (Double, Double)) = new Vec2(tuple._1, tuple._2)
+  def apply(x: Double) = new Vec2(x, x)
+  def apply(v: {def x:Double;def y:Double}) = new Vec2(v.x, v.y)
+  def dim(v: {def width:Double;def height:Double}) = new Vec2(v.width, v.height)
 }
 
 case class Line(
