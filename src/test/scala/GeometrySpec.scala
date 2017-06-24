@@ -182,6 +182,29 @@ class GeometrySpec extends Specification {
         val p = Vec2(4, -1)
         l.distance(p) mustEqual Math.sqrt(20)
       }
+
+      "project point on line (already on line)" >> {
+        val l = Line(Vec2(5, 5), Vec2(9, 5))
+        val p = Vec2(7, 5)
+        l.pointProjection(p) mustEqual Vec2(7, 5)
+      }
+
+      "project point on line" >> {
+        val l = Line(Vec2(5, 5), Vec2(9, 5))
+        val p = Vec2(7, 3)
+        l.pointProjection(p) mustEqual Vec2(7, 5)
+      }
+
+      "project point on line" >> {
+        val l = Line(Vec2(5, 5), Vec2(9, 5))
+        val p = Vec2(7, 8)
+        l.pointProjection(p) mustEqual Vec2(7, 5)
+      }
+      "project point on line" >> {
+        val l = Line(Vec2(-1, -1), Vec2(1, 3))
+        val p = Vec2(4, -1)
+        l.pointProjection(p) mustEqual Vec2(0, 1)
+      }
     }
 
     "Circle" >> {
@@ -248,10 +271,10 @@ class GeometrySpec extends Specification {
         val r1 = AARect(Vec2(2, 3), Vec2(4, 4))
         val r2 = AARect(Vec2(1, 4), Vec2(3, 1))
         val r3 = AARect(Vec2(10, 10), Vec2(1, 1))
-        (r1 isOverlapping r2) must beTrue
-        (r2 isOverlapping r1) must beTrue
-        (r1 isOverlapping r3) must beFalse
-        (r3 isOverlapping r1) must beFalse
+        (r1 intersects r2) must beTrue
+        (r2 intersects r1) must beTrue
+        (r1 intersects r3) must beFalse
+        (r3 intersects r1) must beFalse
       }
     }
 

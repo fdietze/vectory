@@ -22,6 +22,7 @@ case class Vec2(x: Double, y: Double) {
 
   def lengthSq = x * x + y * y
   def length = Math.sqrt(lengthSq)
+  def normalized = this / length
   def area = x * y
 
   def angle = Math.atan2(y, x)
@@ -52,6 +53,7 @@ case class Line(
   def rightOf(p: Vec2) = !leftOf(p)
 
   def distance(that: Vec2): Double = Algorithms.distancePointLine(that.x, that.y, x1, y1, x2, y2)
+  def pointProjection(that: Vec2): Vec2 = Algorithms.projectPointOnLine(that.x, that.y, x1, y1, x2, y2)
   def intersect(that: Line): Option[Algorithms.LineIntersection] = Algorithms.intersect(this, that)
   def intersect(r: ConvexPolygon): Either[Boolean, Seq[Vec2]] = Algorithms.intersect(r, this)
   def cutBy(r: ConvexPolygon): Option[Line] = Algorithms.cutLineByPolyAtStartOrEnd(this, r)
@@ -91,7 +93,7 @@ trait ConvexPolygon {
 
   def includes(v: Vec2): Boolean = edges.forall(_ rightOf v)
   def includes(l: Line): Boolean = includes(l.start) && includes(l.end)
-  def isOverlapping(that: ConvexPolygon): Boolean
+  def intersects(that: ConvexPolygon): Boolean
 }
 
 trait Rect extends ConvexPolygon {
@@ -129,7 +131,7 @@ case class RotatedRect(center: Vec2, size: Vec2, angle: Double) extends Rect {
     center + toRight - toBottom
   )
 
-  def isOverlapping(that: ConvexPolygon): Boolean = ???
+  def intersects(that: ConvexPolygon): Boolean = ???
 }
 
 case class AARect(center: Vec2, size: Vec2) extends Rect {
@@ -147,7 +149,7 @@ case class AARect(center: Vec2, size: Vec2) extends Rect {
     minCorner + Vec2(0, size.y)
   )
 
-  def isOverlapping(that: ConvexPolygon): Boolean = that match {
+  def intersects(that: ConvexPolygon): Boolean = that match {
     case that: AARect =>
       ((this.x < that.x + that.width) && (this.x + this.width > that.x)) &&
         ((this.y < that.y + that.width) && (this.y + this.width > that.y))
@@ -164,6 +166,14 @@ object Algorithms {
     // Point: x0, y0
     // Line: x1, y1 --- x2, y2
     Math.abs((y2 - y1) * x0 - (x2 - x1) * y0 + x2 * y1 - y2 * x1) / Math.sqrt((y2 - y1) * (y2 - y1) + (x2 - x1) * (x2 - x1))
+  }
+
+  def projectPointOnLine(x0: Double, y0: Double, x1: Double, y1: Double, x2: Double, y2: Double): Vec2 = {
+    val m = (y2 - y1) / (x2 - x1)
+    val b = y1 - m * x1
+    val x = (m * y0 + x0 - m * b) / (m * m + 1)
+    val y = (m * m * y0 + m * x0 + b) / (m * m + 1)
+    Vec2(x, y)
   }
 
   case class LineIntersection(pos: Vec2, onLine1: Boolean, onLine2: Boolean)
