@@ -106,7 +106,7 @@ class GeometrySpec extends Specification {
       "area" >> {
         Vec2(3, 4).area mustEqual 12
         Vec2(3, 0).area mustEqual 0
-    }
+      }
     }
 
     "Line" >> {
@@ -167,10 +167,24 @@ class GeometrySpec extends Specification {
       }
     }
 
+    "Circle" >> {
+      "constructor" >> {
+        val c = Circle(Vec2(2, 3), 5)
+        c.center mustEqual Vec2(2, 3)
+        c.x mustEqual 2
+        c.y mustEqual 3
+        c.r mustEqual 5
+      }
+      "diameter" >> {
+        val c = Circle(Vec2(2, 3), 5)
+        c.d mustEqual 10
+      }
+    }
+
     "AARect" >> {
       "constructor" >> {
         val r = AARect(Vec2(11, 5), Vec2(8, 4))
-        r.pos mustEqual Vec2(11, 5)
+        r.center mustEqual Vec2(11, 5)
         r.size mustEqual Vec2(8, 4)
         r.x mustEqual 11
         r.y mustEqual 5
@@ -227,7 +241,7 @@ class GeometrySpec extends Specification {
     "RotatedRect" >> {
       "constructor" >> {
         val r = RotatedRect(Vec2(11, 5), Vec2(8, 4), Math.PI / 4)
-        r.pos mustEqual Vec2(11, 5)
+        r.center mustEqual Vec2(11, 5)
         r.size mustEqual Vec2(8, 4)
         r.x mustEqual 11
         r.y mustEqual 5
@@ -280,6 +294,7 @@ class GeometrySpec extends Specification {
       }
     }
   }
+
   "Algorithms" >> {
     "LineIntersection" >> {
       "Segments" >> {
@@ -311,6 +326,7 @@ class GeometrySpec extends Specification {
         i mustEqual None
       }
     }
+
     "FirstLineRectIntersection" >> {
       "Intersect" >> {
         val r = Rect(Vec2(3, 3.5), Vec2(2, 1))
@@ -331,6 +347,64 @@ class GeometrySpec extends Specification {
         val l = Line(Vec2(2.5, 2.5), Vec2(2.5, 2.5))
         val i = (r intersect l).left.get
         i mustEqual false
+      }
+    }
+
+    "Circle AARect intersection" >> {
+      "not intersecting" >> {
+        val c = Circle(Vec2(3,4), 2)
+        val r = AARect(Vec2(30, 50), Vec2(20,5))
+        (c intersects r) mustEqual false
+        (r intersects c) mustEqual false
+      }
+
+      "rect completely inside over circle center" >> {
+        val c = Circle(Vec2(3,4), 20)
+        val r = AARect(Vec2(2, 3), Vec2(2,5))
+        (c intersects r) mustEqual true
+        (r intersects c) mustEqual true
+      }
+
+      "rect completely inside not over circle center" >> {
+        val c = Circle(Vec2(3,4), 20)
+        val r = AARect(Vec2(-3, 3), Vec2(2,5))
+        (c intersects r) mustEqual true
+        (r intersects c) mustEqual true
+      }
+
+      "circle completely inside rect" >> {
+        val c = Circle(Vec2(3,4), 2)
+        val r = AARect(Vec2(1, 1), Vec2(8,9))
+        (c intersects r) mustEqual true
+        (r intersects c) mustEqual true
+      }
+
+      "overlapping: circle center inside rect" >> {
+        val c = Circle(Vec2(3,1), 2)
+        val r = AARect(Vec2(1, 1), Vec2(6,4))
+        (c intersects r) mustEqual true
+        (r intersects c) mustEqual true
+      }
+
+      "overlapping: circle center outside rect" >> {
+        val c = Circle(Vec2(5,1), 2)
+        val r = AARect(Vec2(1, 1), Vec2(6,4))
+        (c intersects r) mustEqual true
+        (r intersects c) mustEqual true
+      }
+
+      "overlapping: circle center close to corner inside" >> {
+        val c = Circle(Vec2(3,3), 4)
+        val r = AARect(Vec2(-9, -9), Vec2(20,20)) // top right corner at (1,1)
+        (c intersects r) mustEqual true
+        (r intersects c) mustEqual true
+      }
+
+      "overlapping: circle center close to corner outside" >> {
+        val c = Circle(Vec2(4,4), 4)
+        val r = AARect(Vec2(-9, -9), Vec2(20,20)) // top right corner at (1,1)
+        (c intersects r) mustEqual false
+        (r intersects c) mustEqual false
       }
     }
 

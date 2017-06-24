@@ -75,6 +75,14 @@ case class Line(
   override def hashCode = start.hashCode * end.hashCode // multiply to be commutative
 }
 
+case class Circle(center:Vec2, r:Double) {
+  def x = center.x
+  def y = center.y
+  def d = r * 2
+
+  def intersects(rect:AARect) = Algorithms.intersect(this, rect)
+}
+
 trait ConvexPolygon {
   def corners: IndexedSeq[Vec2] // in counter clockwise order
   lazy val edges: IndexedSeq[Line] = Algorithms.slidingRotate(corners).map(e => Line(e.head, e.last))
@@ -87,10 +95,9 @@ trait ConvexPolygon {
 }
 
 trait Rect extends ConvexPolygon {
-  // center
-  def pos: Vec2
-  def x = pos.x
-  def y = pos.y
+  def center: Vec2
+  def x = center.x
+  def y = center.y
 
   def size: Vec2
   def width = size.x
@@ -103,33 +110,33 @@ trait Rect extends ConvexPolygon {
 }
 
 object Rect {
-  def apply(pos: Vec2, size: Vec2, angle: Double = 0): Rect = if (angle == 0) AARect(pos, size) else RotatedRect(pos, size, angle)
+  def apply(center: Vec2, size: Vec2, angle: Double = 0): Rect = if (angle == 0) AARect(center, size) else RotatedRect(center, size, angle)
 }
 
-case class RotatedRect(pos: Vec2, size: Vec2, angle: Double) extends Rect {
+case class RotatedRect(center: Vec2, size: Vec2, angle: Double) extends Rect {
   import Math.{sin, cos}
 
   lazy val toRight = Vec2(cos(angle), sin(angle)) * (width / 2)
   lazy val toBottom = Vec2(-sin(angle), cos(angle)) * (height / 2)
 
-  lazy val minCorner = pos - toRight - toBottom
-  lazy val maxCorner = pos + toRight + toBottom
+  lazy val minCorner = center - toRight - toBottom
+  lazy val maxCorner = center + toRight + toBottom
 
   lazy val corners = Vector(
     minCorner,
-    pos - toRight + toBottom,
+    center - toRight + toBottom,
     maxCorner,
-    pos + toRight - toBottom
+    center + toRight - toBottom
   )
 
   def isOverlapping(that: ConvexPolygon): Boolean = ???
 }
 
-case class AARect(pos: Vec2, size: Vec2) extends Rect {
+case class AARect(center: Vec2, size: Vec2) extends Rect {
   override def angle = 0
 
-  lazy val minCorner = pos - size / 2
-  lazy val maxCorner = pos + size / 2
+  lazy val minCorner = center - size / 2
+  lazy val maxCorner = center + size / 2
 
   override def includes(v: Vec2): Boolean = v.x > minCorner.x && v.y > minCorner.y && v.x < maxCorner.x && v.y < maxCorner.y
 
@@ -146,6 +153,8 @@ case class AARect(pos: Vec2, size: Vec2) extends Rect {
         ((this.y < that.y + that.width) && (this.y + this.width > that.y))
     case poly => ???
   }
+
+  def intersects(circle:Circle) = Algorithms.intersect(circle, this)
 }
 
 object Algorithms {
@@ -203,6 +212,43 @@ object Algorithms {
     if (intersections.nonEmpty)
       Right(intersections)
     else Left(poly includes line)
+  }
+
+  def intersect(circle:Circle, rect: AARect):Boolean = {
+    // https://stackoverflow.com/questions/401847/circle-rectangle-collision-detection-intersection/402010#402010
+   // val circleDistance = (circle.center - rect.center).abs
+
+   //  if (circleDistance.x > (rect.width/2 + circle.r)) return false
+   //  if (circleDistance.y > (rect.height/2 + circle.r)) return false
+
+   //  if (circleDistance.x <= (rect.width/2)) return true
+   //  if (circleDistance.y <= (rect.height/2)) return true
+
+   //  val cornerDistance_sq = (circleDistance - rect.size / 2).lengthSq
+
+   //  return cornerDistance_sq <= circle.r*circle.r
+      intersectCircleAARect(circle.center.x, circle.center.y, circle.r, rect.center.x, rect.center.y, rect.size.width, rect.size.height)
+  }
+
+  def intersectCircleAARect(cx:Double, cy:Double, cr:Double, rcx:Double, rcy:Double, rw:Double, rh:Double):Boolean = {
+
+   val circleDistanceX = Math.abs(cx - rcx)
+   val circleDistanceY = Math.abs(cy - rcy)
+
+   val rwh = rw*0.5
+   val rhh = rh*0.5
+
+    if (circleDistanceX > (rwh + cr)) return false
+    if (circleDistanceY > (rhh + cr)) return false
+
+    if (circleDistanceX <= (rwh)) return true
+    if (circleDistanceY <= (rhh)) return true
+
+    val cornerDistanceX = circleDistanceX - rwh
+    val cornerDistanceY = circleDistanceY - rhh
+    val cornerDistance_sq = cornerDistanceX*cornerDistanceX + cornerDistanceY*cornerDistanceY
+
+    return cornerDistance_sq <= cr*cr
   }
 
   def cutLineByPolyAtStartOrEnd(line: Line, poly: ConvexPolygon): Option[Line] = {
