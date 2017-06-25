@@ -219,6 +219,27 @@ class GeometrySpec extends Specification {
         val c = Circle(Vec2(2, 3), 5)
         c.d mustEqual 10
       }
+
+      "intersects with circle: no intersection" >> {
+        val p = ConvexPolygon(Seq(Vec2(-3,1), Vec2(-1, -2), Vec2(2,2)))
+        val c = Circle(Vec2(2,-2), 1)
+        (p intersects c) mustEqual false
+        (c intersects p) mustEqual false
+      }
+
+      "intersects with circle: circle touches polygon at line" >> {
+        val p = ConvexPolygon(Seq(Vec2(-3,1), Vec2(-1, -2), Vec2(2,2)))
+        val c = Circle(Vec2(2,-2), 3)
+        (p intersects c) mustEqual true
+        (c intersects p) mustEqual true
+      }
+
+      "intersects with circle: circle touches polygon at corner" >> {
+        val p = ConvexPolygon(Seq(Vec2(-3,1), Vec2(-1, -2), Vec2(2,2)))
+        val c = Circle(Vec2(-1, -4), 3)
+        (p intersects c) mustEqual true
+        (c intersects p) mustEqual true
+      }
     }
 
     "AARect" >> {
@@ -238,9 +259,9 @@ class GeometrySpec extends Specification {
         r.maxCorner mustEqual Vec2(15, 7)
       }
 
-      "corners" >> {
+      "cornersCCW" >> {
         val r = AARect(Vec2(3, 3.5), Vec2(2, 1))
-        val c = r.corners.toList
+        val c = r.cornersCCW.toList
         c.toList mustEqual List(Vec2(2, 3), Vec2(4, 3), Vec2(4, 4), Vec2(2, 4))
       }
 
@@ -297,9 +318,9 @@ class GeometrySpec extends Specification {
         roundedMax mustEqual Vec2(12, 19)
       }
 
-      "corners" >> {
+      "cornersCCW" >> {
         val r = RotatedRect(Vec2(8, 9.5), Vec2(20, 5), Math.atan(4.0 / 3.0))
-        val c = r.corners.toList
+        val c = r.cornersCCW.toList
         val rounded = c.toList.map(v => Vec2(Math.round(v.x), Math.round(v.y)))
         rounded mustEqual List(Vec2(4, 0), Vec2(0, 3), Vec2(12, 19), Vec2(16, 16))
       }

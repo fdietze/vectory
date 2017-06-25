@@ -55,15 +55,17 @@ case class Line(
   def distance(that: Vec2): Double = Algorithms.distancePointLine(that.x, that.y, x1, y1, x2, y2)
   def pointProjection(that: Vec2): Vec2 = Algorithms.projectPointOnLine(that.x, that.y, x1, y1, x2, y2)
   def intersect(that: Line): Option[Algorithms.LineIntersection] = Algorithms.intersect(this, that)
-  def intersect(r: ConvexPolygon): Either[Boolean, Seq[Vec2]] = Algorithms.intersect(r, this)
-  def cutBy(r: ConvexPolygon): Option[Line] = Algorithms.cutLineByPolyAtStartOrEnd(this, r)
-  def clampBy(r: ConvexPolygon): Option[Line] = Algorithms.clampLineByPoly(this, r)
+  def intersect(r: ConvexPolygonLike): Either[Boolean, Seq[Vec2]] = Algorithms.intersect(r, this)
+  def cutBy(r: ConvexPolygonLike): Option[Line] = Algorithms.cutLineByPolyAtStartOrEnd(this, r)
+  def clampBy(r: ConvexPolygonLike): Option[Line] = Algorithms.clampLineByPoly(this, r)
 
-  def length = {
+  def lengthSq = {
     val dx = start.x - end.x
     val dy = start.y - end.y
-    Math.sqrt(dx * dx + dy * dy)
+    dx * dx + dy * dy
   }
+
+  def length = Math.sqrt(lengthSq)
 
   def canEqual(other: Any): Boolean = other.isInstanceOf[Line]
 
@@ -83,20 +85,26 @@ case class Circle(center: Vec2, r: Double) {
   def d = r * 2
 
   def intersects(rect: AARect) = Algorithms.intersect(this, rect)
+  def intersects(that: ConvexPolygonLike) = Algorithms.intersectCircleConvexPolygon(this, that)
 }
 
-trait ConvexPolygon {
-  def corners: IndexedSeq[Vec2] // in counter clockwise order
-  lazy val edges: IndexedSeq[Line] = Algorithms.slidingRotate(corners).map(e => Line(e.head, e.last))
+trait ConvexPolygonLike {
+  def cornersCCW: Seq[Vec2] // in counter clockwise order
+  lazy val edges: Seq[Line] = Algorithms.slidingRotate(cornersCCW).map(e => Line(e.head, e.last))
 
   def intersect(line: Line) = Algorithms.intersect(this, line)
 
   def includes(v: Vec2): Boolean = edges.forall(_ rightOf v)
   def includes(l: Line): Boolean = includes(l.start) && includes(l.end)
-  def intersects(that: ConvexPolygon): Boolean
+  def intersects(that: ConvexPolygonLike): Boolean
+  def intersects(that: Circle) = Algorithms.intersectCircleConvexPolygon(that, this)
 }
 
-trait Rect extends ConvexPolygon {
+case class ConvexPolygon(cornersCCW: Seq[Vec2]) extends ConvexPolygonLike {
+  def intersects(that: ConvexPolygonLike) = ???
+}
+
+trait Rect extends ConvexPolygonLike {
   def center: Vec2
   def x = center.x
   def y = center.y
@@ -124,14 +132,14 @@ case class RotatedRect(center: Vec2, size: Vec2, angle: Double) extends Rect {
   lazy val minCorner = center - toRight - toBottom
   lazy val maxCorner = center + toRight + toBottom
 
-  lazy val corners = Vector(
+  lazy val cornersCCW = Vector(
     minCorner,
     center - toRight + toBottom,
     maxCorner,
     center + toRight - toBottom
   )
 
-  def intersects(that: ConvexPolygon): Boolean = ???
+  def intersects(that: ConvexPolygonLike): Boolean = ???
 }
 
 case class AARect(center: Vec2, size: Vec2) extends Rect {
@@ -142,21 +150,21 @@ case class AARect(center: Vec2, size: Vec2) extends Rect {
 
   override def includes(v: Vec2): Boolean = v.x > minCorner.x && v.y > minCorner.y && v.x < maxCorner.x && v.y < maxCorner.y
 
-  lazy val corners = Vector(
+  lazy val cornersCCW = Vector(
     minCorner,
     minCorner + Vec2(size.x, 0),
     maxCorner,
     minCorner + Vec2(0, size.y)
   )
 
-  def intersects(that: ConvexPolygon): Boolean = that match {
+  def intersects(that: ConvexPolygonLike): Boolean = that match {
     case that: AARect =>
       ((this.x < that.x + that.width) && (this.x + this.width > that.x)) &&
         ((this.y < that.y + that.width) && (this.y + this.width > that.y))
     case poly => ???
   }
 
-  def intersects(circle: Circle) = Algorithms.intersect(circle, this)
+  override def intersects(circle: Circle) = Algorithms.intersect(circle, this)
 }
 
 object Algorithms {
@@ -166,6 +174,24 @@ object Algorithms {
     // Point: x0, y0
     // Line: x1, y1 --- x2, y2
     Math.abs((y2 - y1) * x0 - (x2 - x1) * y0 + x2 * y1 - y2 * x1) / Math.sqrt((y2 - y1) * (y2 - y1) + (x2 - x1) * (x2 - x1))
+  }
+
+  def distancePointLineSegment(x0: Double, y0: Double, x1: Double, y1: Double, x2: Double, y2: Double): Double = {
+    import Math.{ min, max }
+    // https://stackoverflow.com/questions/849211/shortest-distance-between-a-point-and-a-line-segment
+    // Return minimum distance between line segment vw and point p
+    val p = Vec2(x0, y0)
+    val v = Vec2(x1, y1)
+    val w = Vec2(x2, y2)
+    val l2 = Line(v, w).lengthSq // i.e. |w-v|^2 -  avoid a sqrt
+    if (l2 == 0.0) return Line(p, v).length // v == w case
+    // Consider the line extending the segment, parameterized as v + t (w - v).
+    // We find projection of point p onto the line.
+    // It falls where t = [(p-v) . (w-v)] / |w-v|^2
+    // We clamp t from [0,1] to handle points outside the segment vw.
+    val t = max(0, min(1, ((p - v) dot (w - v)) / l2))
+    val projection = v + (w - v) * t // Projection falls on the segment
+    return Line(p, projection).length
   }
 
   def projectPointOnLine(x0: Double, y0: Double, x1: Double, y1: Double, x2: Double, y2: Double): Vec2 = {
@@ -217,7 +243,7 @@ object Algorithms {
     return Some(LineIntersection(Vec2(resultX, resultY), resultOnLine1, resultOnLine2))
   }
 
-  def intersect(poly: ConvexPolygon, line: Line): Either[Boolean, Seq[Vec2]] = {
+  def intersect(poly: ConvexPolygonLike, line: Line): Either[Boolean, Seq[Vec2]] = {
     // Left(true)  => line is completely inside
     // Left(false) => line is completely outside
     // Right(pos)  => one intersection point
@@ -267,7 +293,12 @@ object Algorithms {
     return cornerDistance_sq <= cr * cr
   }
 
-  def cutLineByPolyAtStartOrEnd(line: Line, poly: ConvexPolygon): Option[Line] = {
+  def intersectCircleConvexPolygon(c: Circle, p: ConvexPolygonLike): Boolean = {
+    if (p.includes(c.center)) return true
+    p.edges.exists(segment => distancePointLineSegment(c.x, c.y, segment.x1, segment.y1, segment.x2, segment.y2) <= c.r)
+  }
+
+  def cutLineByPolyAtStartOrEnd(line: Line, poly: ConvexPolygonLike): Option[Line] = {
     // Assuming there is only one intersection.
     // Which means that one line end is inside the poly,
     // the other one outside.
@@ -286,7 +317,7 @@ object Algorithms {
     }
   }
 
-  def clampLineByPoly(line: Line, poly: ConvexPolygon): Option[Line] = {
+  def clampLineByPoly(line: Line, poly: ConvexPolygonLike): Option[Line] = {
     (poly includes line.start, poly includes line.end) match {
       case (true, true)  => Some(line)
       case (true, false) => Some(Line(line.start, intersect(poly, line).right.get.head))
