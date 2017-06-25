@@ -3,6 +3,8 @@ package vectory
 import org.specs2.mutable.Specification
 
 class GeometrySpec extends Specification {
+  sequential
+
   "Primitives" >> {
     "Vec2" >> {
       "constructor" >> {
@@ -102,6 +104,10 @@ class GeometrySpec extends Specification {
       "length" >> {
         Vec2(3, 4).lengthSq mustEqual 25
         Vec2(3, 4).length mustEqual 5
+      }
+      "normalized" >> {
+        Vec2(3, 4).normalized.length mustEqual 1
+        Vec2(-2, 3).normalized.length mustEqual 1
       }
       "area" >> {
         Vec2(3, 4).area mustEqual 12
@@ -256,26 +262,26 @@ class GeometrySpec extends Specification {
         "no intersection" >> {
           val a = ConvexPolygon(IndexedSeq(Vec2(-3, 1), Vec2(-1, -2), Vec2(2, 2)))
           val b = ConvexPolygon(IndexedSeq(Vec2(0, -1), Vec2(2, -1), Vec2(2, 1)))
-          (a intersects b) mustEqual false
-          (b intersects a) mustEqual false
+          (a intersects b) mustEqual None
+          (b intersects a) mustEqual None
         }
         "completely inside" >> {
           val a = ConvexPolygon(IndexedSeq(Vec2(-3, 1), Vec2(-1, -4), Vec2(3, -5), Vec2(5, -1), Vec2(2, 2)))
           val b = ConvexPolygon(IndexedSeq(Vec2(0, -1), Vec2(2, -1), Vec2(2, 1)))
-          (a intersects b) mustEqual true
-          (b intersects a) mustEqual true
+          (a intersects b) mustEqual Some(Vec2(-0.5769230769230769,2.884615384615384))
+          (b intersects a) mustEqual Some(Vec2(0.5769230769230769,-2.884615384615384))
         }
         "overlapping" >> {
           val a = ConvexPolygon(IndexedSeq(Vec2(-3, 1), Vec2(-1, -2), Vec2(2, 2)))
           val b = ConvexPolygon(IndexedSeq(Vec2(0, 0), Vec2(2, -1), Vec2(2, 1)))
-          (a intersects b) mustEqual true
-          (b intersects a) mustEqual true
+          (a intersects b) mustEqual Some(Vec2(0.32, -0.24))
+          (b intersects a) mustEqual Some(Vec2(-0.32, 0.24))
         }
       }
 
       "axis aligned bounding box" >> {
         val p = ConvexPolygon(Array(Vec2(-2, -2), Vec2(-3, -1), Vec2(2, -2), Vec2(1, 3)))
-        p.aabb mustEqual AARect(Vec2(-3, -2), Vec2(5, 5))
+        p.aabb mustEqual AARect(Vec2(-0.5, 0.5), Vec2(5, 5))
       }
     }
 
@@ -329,10 +335,10 @@ class GeometrySpec extends Specification {
         val r1 = AARect(Vec2(2, 3), Vec2(4, 4))
         val r2 = AARect(Vec2(1, 4), Vec2(3, 1))
         val r3 = AARect(Vec2(10, 10), Vec2(1, 1))
-        (r1 intersects r2) must beTrue
-        (r2 intersects r1) must beTrue
-        (r1 intersects r3) must beFalse
-        (r3 intersects r1) must beFalse
+        (r1 intersects r2) mustEqual Some(Vec2(0, 1.5))
+        (r2 intersects r1) mustEqual Some(Vec2(0, -1.5))
+        (r1 intersects r3) mustEqual None
+        (r3 intersects r1) mustEqual None
       }
     }
 
