@@ -240,6 +240,13 @@ class GeometrySpec extends Specification {
         (p intersects c) mustEqual true
         (c intersects p) mustEqual true
       }
+
+      "intersects with circle: circle completely inside polygon" >> {
+        val p = ConvexPolygon(Seq(Vec2(-3,1), Vec2(-1, -4), Vec2(3,-5), Vec2(5, -1), Vec2(2,2)))
+        val c = Circle(Vec2(2, -2), 3)
+        (p intersects c) mustEqual true
+        (c intersects p) mustEqual true
+      }
     }
 
     "AARect" >> {
