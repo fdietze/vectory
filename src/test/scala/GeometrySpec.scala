@@ -220,32 +220,62 @@ class GeometrySpec extends Specification {
         c.d mustEqual 10
       }
 
-      "intersects with circle: no intersection" >> {
-        val p = ConvexPolygon(Seq(Vec2(-3,1), Vec2(-1, -2), Vec2(2,2)))
-        val c = Circle(Vec2(2,-2), 1)
-        (p intersects c) mustEqual false
-        (c intersects p) mustEqual false
+      "intersects with polygon" >> {
+        "no intersection" >> {
+          val p = ConvexPolygon(IndexedSeq(Vec2(-3, 1), Vec2(-1, -2), Vec2(2, 2)))
+          val c = Circle(Vec2(2, -2), 1)
+          (p intersects c) mustEqual false
+          (c intersects p) mustEqual false
+        }
+
+        "circle touches polygon at line" >> {
+          val p = ConvexPolygon(IndexedSeq(Vec2(-3, 1), Vec2(-1, -2), Vec2(2, 2)))
+          val c = Circle(Vec2(2, -2), 3)
+          (p intersects c) mustEqual true
+          (c intersects p) mustEqual true
+        }
+
+        "circle touches polygon at corner" >> {
+          val p = ConvexPolygon(IndexedSeq(Vec2(-3, 1), Vec2(-1, -2), Vec2(2, 2)))
+          val c = Circle(Vec2(-1, -4), 3)
+          (p intersects c) mustEqual true
+          (c intersects p) mustEqual true
+        }
+
+        "circle completely inside polygon" >> {
+          val p = ConvexPolygon(IndexedSeq(Vec2(-3, 1), Vec2(-1, -4), Vec2(3, -5), Vec2(5, -1), Vec2(2, 2)))
+          val c = Circle(Vec2(2, -2), 3)
+          (p intersects c) mustEqual true
+          (c intersects p) mustEqual true
+        }
+      }
+    }
+
+    "ConvexPolygon" >> {
+      "intersect 2 convex polygons" >> {
+        "no intersection" >> {
+          val a = ConvexPolygon(IndexedSeq(Vec2(-3, 1), Vec2(-1, -2), Vec2(2, 2)))
+          val b = ConvexPolygon(IndexedSeq(Vec2(0, -1), Vec2(2, -1), Vec2(2, 1)))
+          (a intersects b) mustEqual false
+          (b intersects a) mustEqual false
+        }
+        "completely inside" >> {
+          val a = ConvexPolygon(IndexedSeq(Vec2(-3, 1), Vec2(-1, -4), Vec2(3, -5), Vec2(5, -1), Vec2(2, 2)))
+          val b = ConvexPolygon(IndexedSeq(Vec2(0, -1), Vec2(2, -1), Vec2(2, 1)))
+          (a intersects b) mustEqual true
+          (b intersects a) mustEqual true
+        }
+        "overlapping" >> {
+          val a = ConvexPolygon(IndexedSeq(Vec2(-3, 1), Vec2(-1, -2), Vec2(2, 2)))
+          val b = ConvexPolygon(IndexedSeq(Vec2(0, 0), Vec2(2, -1), Vec2(2, 1)))
+          (a intersects b) mustEqual true
+          (b intersects a) mustEqual true
+        }
       }
 
-      "intersects with circle: circle touches polygon at line" >> {
-        val p = ConvexPolygon(Seq(Vec2(-3,1), Vec2(-1, -2), Vec2(2,2)))
-        val c = Circle(Vec2(2,-2), 3)
-        (p intersects c) mustEqual true
-        (c intersects p) mustEqual true
-      }
-
-      "intersects with circle: circle touches polygon at corner" >> {
-        val p = ConvexPolygon(Seq(Vec2(-3,1), Vec2(-1, -2), Vec2(2,2)))
-        val c = Circle(Vec2(-1, -4), 3)
-        (p intersects c) mustEqual true
-        (c intersects p) mustEqual true
-      }
-
-      "intersects with circle: circle completely inside polygon" >> {
-        val p = ConvexPolygon(Seq(Vec2(-3,1), Vec2(-1, -4), Vec2(3,-5), Vec2(5, -1), Vec2(2,2)))
-        val c = Circle(Vec2(2, -2), 3)
-        (p intersects c) mustEqual true
-        (c intersects p) mustEqual true
+      "axis aligned bounding box" >> {
+        val p = ConvexPolygon(Array(Vec2(-2, -2), Vec2(-3, -1), Vec2(2, -2), Vec2(1, 3)))
+        p.aabb mustEqual AARect(Vec2(-3, -2), Vec2(5, 5))
       }
     }
 

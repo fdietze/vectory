@@ -24,6 +24,7 @@ case class Vec2(x: Double, y: Double) {
   def length = Math.sqrt(lengthSq)
   def normalized = this / length
   def area = x * y
+  def normal = Vec2(y, -x)
 
   def angle = Math.atan2(y, x)
 
@@ -47,6 +48,7 @@ case class Line(
   def y2 = end.y
 
   def vector = end - start
+  def normal = vector.normal
   def center = (start + end) / 2
 
   def leftOf(p: Vec2) = (vector cross (p - start)) > 0
@@ -90,20 +92,40 @@ case class Circle(center: Vec2, r: Double) {
 }
 
 trait ConvexPolygonLike {
-  def cornersCCW: Seq[Vec2] // in counter clockwise order
+  def cornersCCW: IndexedSeq[Vec2] // in counter clockwise order
   lazy val edges: Seq[Line] = Algorithms.slidingRotate(cornersCCW).map(e => Line(e.head, e.last))
+
+  // axis aligned bounding box
+  def aabb = {
+    val first = cornersCCW(0)
+    var xMin = first.x
+    var xMax = xMin
+    var yMin = first.y
+    var yMax = yMin
+    var i = 1
+    val n = cornersCCW.size
+    while (i < n) {
+      val vertex = cornersCCW(i)
+      val x = vertex.x
+      val y = vertex.y
+      if (x < xMin) xMin = x
+      else if (x > xMax) xMax = x
+      if (y < yMin) yMin = y
+      else if (y > yMax) yMax = y
+      i += 1
+    }
+    AARect(Vec2(xMin, yMin), Vec2(xMax - xMin, yMax - yMin))
+  }
 
   def intersect(line: Line) = Algorithms.intersect(this, line)
 
   def includes(v: Vec2): Boolean = edges.forall(_ rightOf v)
   def includes(l: Line): Boolean = includes(l.start) && includes(l.end)
-  def intersects(that: ConvexPolygonLike): Boolean
+  def intersects(that: ConvexPolygonLike): Boolean = Algorithms.intersect2ConvexPolygon(this, that)
   def intersects(that: Circle) = Algorithms.intersectCircleConvexPolygon(that, this)
 }
 
-case class ConvexPolygon(cornersCCW: Seq[Vec2]) extends ConvexPolygonLike {
-  def intersects(that: ConvexPolygonLike) = ???
-}
+case class ConvexPolygon(cornersCCW: IndexedSeq[Vec2]) extends ConvexPolygonLike
 
 trait Rect extends ConvexPolygonLike {
   def center: Vec2
@@ -139,8 +161,6 @@ case class RotatedRect(center: Vec2, size: Vec2, angle: Double) extends Rect {
     maxCorner,
     center + toRight - toBottom
   )
-
-  def intersects(that: ConvexPolygonLike): Boolean = ???
 }
 
 case class AARect(center: Vec2, size: Vec2) extends Rect {
@@ -148,6 +168,8 @@ case class AARect(center: Vec2, size: Vec2) extends Rect {
 
   lazy val minCorner = center - size / 2
   lazy val maxCorner = center + size / 2
+
+  override def aabb = this
 
   override def includes(v: Vec2): Boolean = v.x > minCorner.x && v.y > minCorner.y && v.x < maxCorner.x && v.y < maxCorner.y
 
@@ -158,11 +180,11 @@ case class AARect(center: Vec2, size: Vec2) extends Rect {
     minCorner + Vec2(0, size.y)
   )
 
-  def intersects(that: ConvexPolygonLike): Boolean = that match {
+  override def intersects(that: ConvexPolygonLike): Boolean = that match {
     case that: AARect =>
       ((this.x < that.x + that.width) && (this.x + this.width > that.x)) &&
         ((this.y < that.y + that.width) && (this.y + this.width > that.y))
-    case poly => ???
+    case poly => Algorithms.intersect2ConvexPolygon(this, that)
   }
 
   override def intersects(circle: Circle) = Algorithms.intersect(circle, this)
@@ -297,6 +319,34 @@ object Algorithms {
   def intersectCircleConvexPolygon(c: Circle, p: ConvexPolygonLike): Boolean = {
     if (p.includes(c.center)) return true
     p.edges.exists(segment => distancePointLineSegment(c.x, c.y, segment.x1, segment.y1, segment.x2, segment.y2) <= c.r)
+  }
+
+  def intersect2ConvexPolygon(a: ConvexPolygonLike, b: ConvexPolygonLike): Boolean = {
+    // https://stackoverflow.com/questions/753140/how-do-i-determine-if-two-convex-polygons-intersect
+    // http://gamemath.com/2011/09/detecting-whether-two-convex-polygons-overlap
+    def projectionExtents(axis: Vec2, vertices: IndexedSeq[Vec2]): (Double, Double) = {
+      var aMin = axis dot vertices(0)
+      var aMax = aMin
+      var i = 1
+      val n = vertices.size
+      while (i < n) {
+        val d = axis dot vertices(i)
+        if (d < aMin) aMin = d
+        else if (d > aMax) aMax = d
+        i += 1
+      }
+      (aMin, aMax)
+    }
+
+    def separatingAxis(edge: Line, a: ConvexPolygonLike, b: ConvexPolygonLike) = {
+      val axis = edge.normal
+      val (aMin, aMax) = projectionExtents(axis, a.cornersCCW)
+      val (bMin, bMax) = projectionExtents(axis, b.cornersCCW)
+      aMax < bMin || bMax < aMin
+    }
+
+    a.edges.forall (!separatingAxis(_, a, b)) &&
+      b.edges.forall (!separatingAxis(_, a, b))
   }
 
   def cutLineByPolyAtStartOrEnd(line: Line, poly: ConvexPolygonLike): Option[Line] = {
