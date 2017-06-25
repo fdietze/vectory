@@ -53,6 +53,7 @@ case class Line(
   def rightOf(p: Vec2) = !leftOf(p)
 
   def distance(that: Vec2): Double = Algorithms.distancePointLine(that.x, that.y, x1, y1, x2, y2)
+  def segmentDistance(that: Vec2): Double = Algorithms.distancePointLineSegment(that.x, that.y, x1, y1, x2, y2)
   def pointProjection(that: Vec2): Vec2 = Algorithms.projectPointOnLine(that.x, that.y, x1, y1, x2, y2)
   def intersect(that: Line): Option[Algorithms.LineIntersection] = Algorithms.intersect(this, that)
   def intersect(r: ConvexPolygonLike): Either[Boolean, Seq[Vec2]] = Algorithms.intersect(r, this)
