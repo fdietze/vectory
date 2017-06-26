@@ -36,6 +36,10 @@ object Vec2 {
   def apply(x: Double) = new Vec2(x, x)
   def apply(v: { def x: Double; def y: Double }) = new Vec2(v.x, v.y)
   def dim(v: { def width: Double; def height: Double }) = new Vec2(v.width, v.height)
+
+  val zero = new Vec2(0, 0)
+  val unitX = new Vec2(1, 0)
+  val unitY = new Vec2(0, 1)
 }
 
 case class Line(
@@ -96,28 +100,7 @@ trait ConvexPolygonLike {
   lazy val edges: IndexedSeq[Line] = Algorithms.slidingRotate(cornersCCW).map(e => Line(e.head, e.last))
 
   // axis aligned bounding box
-  def aabb = {
-    val first = cornersCCW(0)
-    var xMin = first.x
-    var xMax = xMin
-    var yMin = first.y
-    var yMax = yMin
-    var i = 1
-    val n = cornersCCW.size
-    while (i < n) {
-      val vertex = cornersCCW(i)
-      val x = vertex.x
-      val y = vertex.y
-      if (x < xMin) xMin = x
-      else if (x > xMax) xMax = x
-      if (y < yMin) yMin = y
-      else if (y > yMax) yMax = y
-      i += 1
-    }
-    val width = xMax - xMin
-    val height = yMax - yMin
-    AARect(Vec2(xMin + width * 0.5, yMin + height * 0.5), Vec2(width, height))
-  }
+  def aabb = Algorithms.axisAlignedBoundingBox(cornersCCW)
 
   def intersect(line: Line) = Algorithms.intersect(this, line)
 
@@ -220,6 +203,29 @@ object Algorithms {
     val x = (m * y0 + x0 - m * b) / (m * m + 1)
     val y = (m * m * y0 + m * x0 + b) / (m * m + 1)
     Vec2(x, y)
+  }
+
+  def axisAlignedBoundingBox(vertices: IndexedSeq[Vec2]) = {
+    val first = vertices(0)
+    var xMin = first.x
+    var xMax = xMin
+    var yMin = first.y
+    var yMax = yMin
+    var i = 1
+    val n = vertices.size
+    while (i < n) {
+      val vertex = vertices(i)
+      val x = vertex.x
+      val y = vertex.y
+      if (x < xMin) xMin = x
+      else if (x > xMax) xMax = x
+      if (y < yMin) yMin = y
+      else if (y > yMax) yMax = y
+      i += 1
+    }
+    val width = xMax - xMin
+    val height = yMax - yMin
+    AARect(Vec2(xMin + width * 0.5, yMin + height * 0.5), Vec2(width, height))
   }
 
   case class LineIntersection(pos: Vec2, onLine1: Boolean, onLine2: Boolean)
@@ -363,7 +369,7 @@ object Algorithms {
 
     val noSeparatingAxisFound = {
       a.edges.forall (!separatingAxis(_, a, b)) &&
-      b.edges.forall (!separatingAxis(_, a, b))
+        b.edges.forall (!separatingAxis(_, a, b))
     }
 
     if (noSeparatingAxisFound) {
