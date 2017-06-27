@@ -173,20 +173,71 @@ class GeometrySpec extends Specification {
       }
 
       "distance to point" >> {
-        val l = Line(Vec2(5, 5), Vec2(9, 5))
-        val p = Vec2(7, 3)
-        l.distance(p) mustEqual 2
+        "distance to point (point on line)" >> {
+          val l = Line(Vec2(5, 5), Vec2(9, 5))
+          val p = Vec2(7, 5)
+          l.distance(p) mustEqual 0
+        }
+
+        "distance to point" >> {
+          val l = Line(Vec2(5, 5), Vec2(9, 5))
+          val p = Vec2(7, 3)
+          l.distance(p) mustEqual 2
+        }
+
+        "distance to point" >> {
+          val l = Line(Vec2(5, 5), Vec2(9, 5))
+          val p = Vec2(7, 8)
+          l.distance(p) mustEqual 3
+        }
+        "distance to point" >> {
+          val l = Line(Vec2(-1, -1), Vec2(1, 3))
+          val p = Vec2(4, -1)
+          l.distance(p) mustEqual Math.sqrt(20)
+        }
       }
 
-      "distance to point" >> {
-        val l = Line(Vec2(5, 5), Vec2(9, 5))
-        val p = Vec2(7, 8)
-        l.distance(p) mustEqual 3
-      }
-      "distance to point" >> {
-        val l = Line(Vec2(-1, -1), Vec2(1, 3))
-        val p = Vec2(4, -1)
-        l.distance(p) mustEqual Math.sqrt(20)
+      "segment distance to point" >> {
+        "point on segment" >> {
+          val l = Line(Vec2(5, 5), Vec2(9, 5))
+          val p = Vec2(7, 5)
+          l.segmentDistance(p) mustEqual 0
+        }
+
+        "point on line" >> {
+          val l = Line(Vec2(5, 5), Vec2(9, 5))
+          val p = Vec2(3, 5)
+          l.segmentDistance(p) mustEqual 2
+        }
+
+        "segment start to point" >> {
+          val l = Line(Vec2(5, 5), Vec2(9, 5))
+          val p = Vec2(3, 3)
+          l.segmentDistance(p) mustEqual Math.sqrt(8)
+        }
+
+        "segment end to point" >> {
+          val l = Line(Vec2(5, 5), Vec2(9, 5))
+          val p = Vec2(11, 3)
+          l.segmentDistance(p) mustEqual Math.sqrt(8)
+        }
+
+        "segment distance to point" >> {
+          val l = Line(Vec2(5, 5), Vec2(9, 5))
+          val p = Vec2(7, 3)
+          l.segmentDistance(p) mustEqual 2
+        }
+
+        "segment distance to point" >> {
+          val l = Line(Vec2(5, 5), Vec2(9, 5))
+          val p = Vec2(7, 8)
+          l.segmentDistance(p) mustEqual 3
+        }
+        "segment distance to point" >> {
+          val l = Line(Vec2(-1, -1), Vec2(1, 3))
+          val p = Vec2(4, -1)
+          l.segmentDistance(p) mustEqual Math.sqrt(20)
+        }
       }
 
       "project point on line (already on line)" >> {
@@ -236,7 +287,7 @@ class GeometrySpec extends Specification {
 
         "circle touches polygon at line" >> {
           val p = ConvexPolygon(IndexedSeq(Vec2(-3, 1), Vec2(-1, -2), Vec2(2, 2)))
-          val c = Circle(Vec2(2, -2), 3)
+          val c = Circle(Vec2(1, -1), 2)
           (p intersects c) mustEqual true
           (c intersects p) mustEqual true
         }
@@ -246,6 +297,13 @@ class GeometrySpec extends Specification {
           val c = Circle(Vec2(-1, -4), 3)
           (p intersects c) mustEqual true
           (c intersects p) mustEqual true
+        }
+
+        "circle not touching at corner" >> {
+          val p = ConvexPolygon(IndexedSeq(Vec2(-3, 1), Vec2(-1, -2), Vec2(2, 2)))
+          val c = Circle(Vec2(-1, -5), 1)
+          (p intersects c) mustEqual false
+          (c intersects p) mustEqual false
         }
 
         "circle completely inside polygon" >> {
@@ -268,8 +326,8 @@ class GeometrySpec extends Specification {
         "completely inside" >> {
           val a = ConvexPolygon(IndexedSeq(Vec2(-3, 1), Vec2(-1, -4), Vec2(3, -5), Vec2(5, -1), Vec2(2, 2)))
           val b = ConvexPolygon(IndexedSeq(Vec2(0, -1), Vec2(2, -1), Vec2(2, 1)))
-          (a intersects b) mustEqual Some(Vec2(-0.5769230769230769,2.884615384615384))
-          (b intersects a) mustEqual Some(Vec2(0.5769230769230769,-2.884615384615384))
+          (a intersects b) mustEqual Some(Vec2(-0.5769230769230769, 2.884615384615384))
+          (b intersects a) mustEqual Some(Vec2(0.5769230769230769, -2.884615384615384))
         }
         "overlapping" >> {
           val a = ConvexPolygon(IndexedSeq(Vec2(-3, 1), Vec2(-1, -2), Vec2(2, 2)))
