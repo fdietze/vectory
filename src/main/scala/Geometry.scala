@@ -4,6 +4,9 @@ import scala.scalajs.js
 import scala.scalajs.js.annotation.{JSExport, JSExportAll}
 import annotation.meta.field
 
+//TODO: use Fast Inverse Square Root where possible
+// https://en.wikipedia.org/wiki/Fast_inverse_square_root
+
 case class Vec2(x: Double, y: Double) {
   def width = x
   def height = y
@@ -92,7 +95,7 @@ case class Circle(center: Vec2, r: Double) {
   def d = r * 2
 
   def intersects(rect: AARect) = Algorithms.intersect(this, rect)
-  def intersects(that: ConvexPolygonLike) = Algorithms.intersectCircleConvexPolygon(this, that)
+  def intersects(that: ConvexPolygonLike) = Algorithms.intersectCircleConvexPolygon(that, this)
 }
 
 trait ConvexPolygonLike {
@@ -106,8 +109,8 @@ trait ConvexPolygonLike {
 
   def includes(v: Vec2): Boolean = edges.forall(_ rightOf v)
   def includes(l: Line): Boolean = includes(l.start) && includes(l.end)
-  def intersects(that: ConvexPolygonLike): Option[Vec2] = Algorithms.intersect2ConvexPolygon(this, that)
-  def intersects(that: Circle) = Algorithms.intersectCircleConvexPolygon(that, this)
+  def intersectsMtd(that: ConvexPolygonLike): Option[Vec2] = Algorithms.intersect2ConvexPolygonMtd(this, that)
+  def intersects(that: Circle): Boolean = Algorithms.intersectCircleConvexPolygon(this, that)
 }
 
 case class ConvexPolygon(cornersCCW: IndexedSeq[Vec2]) extends ConvexPolygonLike
@@ -166,6 +169,7 @@ case class AARect(center: Vec2, size: Vec2) extends Rect {
   )
 
   //TODO: optimized AARect vs AARect collision detection and repsonse only looking at two axes
+  //TODO: optimized Circle vs AARect collision detection and repsonse
 
   override def intersects(circle: Circle) = Algorithms.intersect(circle, this)
 }
@@ -319,7 +323,7 @@ object Algorithms {
     return cornerDistance_sq <= cr * cr
   }
 
-  def intersectCircleConvexPolygon(c: Circle, p: ConvexPolygonLike): Boolean = {
+  def intersectCircleConvexPolygon(p: ConvexPolygonLike, c: Circle): Boolean = {
     // https://bitlush.com/blog/circle-vs-polygon-collision-detection-in-c-sharp
 
     val r = c.r
@@ -395,7 +399,7 @@ object Algorithms {
   }
 
   // returns shortest vector to separate polygons
-  def intersect2ConvexPolygon(a: ConvexPolygonLike, b: ConvexPolygonLike): Option[Vec2] = {
+  def intersect2ConvexPolygonMtd(a: ConvexPolygonLike, b: ConvexPolygonLike): Option[Vec2] = {
     // https://stackoverflow.com/questions/753140/how-do-i-determine-if-two-convex-polygons-intersect
     // http://gamemath.com/2011/09/detecting-whether-two-convex-polygons-overlap
     // http://elancev.name/oliver/2D%20polygon.htm#tut2

@@ -320,20 +320,20 @@ class GeometrySpec extends Specification {
         "no intersection" >> {
           val a = ConvexPolygon(IndexedSeq(Vec2(-3, 1), Vec2(-1, -2), Vec2(2, 2)))
           val b = ConvexPolygon(IndexedSeq(Vec2(0, -1), Vec2(2, -1), Vec2(2, 1)))
-          (a intersects b) mustEqual None
-          (b intersects a) mustEqual None
+          (a intersectsMtd b) mustEqual None
+          (b intersectsMtd a) mustEqual None
         }
         "completely inside" >> {
           val a = ConvexPolygon(IndexedSeq(Vec2(-3, 1), Vec2(-1, -4), Vec2(3, -5), Vec2(5, -1), Vec2(2, 2)))
           val b = ConvexPolygon(IndexedSeq(Vec2(0, -1), Vec2(2, -1), Vec2(2, 1)))
-          (a intersects b) mustEqual Some(Vec2(-0.5769230769230769, 2.884615384615384))
-          (b intersects a) mustEqual Some(Vec2(0.5769230769230769, -2.884615384615384))
+          (a intersectsMtd b) mustEqual Some(Vec2(-0.5769230769230769, 2.884615384615384))
+          (b intersectsMtd a) mustEqual Some(Vec2(0.5769230769230769, -2.884615384615384))
         }
         "overlapping" >> {
           val a = ConvexPolygon(IndexedSeq(Vec2(-3, 1), Vec2(-1, -2), Vec2(2, 2)))
           val b = ConvexPolygon(IndexedSeq(Vec2(0, 0), Vec2(2, -1), Vec2(2, 1)))
-          (a intersects b) mustEqual Some(Vec2(0.32, -0.24))
-          (b intersects a) mustEqual Some(Vec2(-0.32, 0.24))
+          (a intersectsMtd b) mustEqual Some(Vec2(0.32, -0.24))
+          (b intersectsMtd a) mustEqual Some(Vec2(-0.32, 0.24))
         }
       }
 
@@ -393,10 +393,10 @@ class GeometrySpec extends Specification {
         val r1 = AARect(Vec2(2, 3), Vec2(4, 4))
         val r2 = AARect(Vec2(1, 4), Vec2(3, 1))
         val r3 = AARect(Vec2(10, 10), Vec2(1, 1))
-        (r1 intersects r2) mustEqual Some(Vec2(0, 1.5))
-        (r2 intersects r1) mustEqual Some(Vec2(0, -1.5))
-        (r1 intersects r3) mustEqual None
-        (r3 intersects r1) mustEqual None
+        (r1 intersectsMtd r2) mustEqual Some(Vec2(0, 1.5))
+        (r2 intersectsMtd r1) mustEqual Some(Vec2(0, -1.5))
+        (r1 intersectsMtd r3) mustEqual None
+        (r3 intersectsMtd r1) mustEqual None
       }
     }
 
@@ -522,14 +522,14 @@ class GeometrySpec extends Specification {
 
       "rect completely inside over circle center" >> {
         val c = Circle(Vec2(3, 4), 20)
-        val r = AARect(Vec2(2, 3), Vec2(2, 5))
+        val r = AARect(Vec2(2, 3), Vec2(4, 5))
         (c intersects r) mustEqual true
         (r intersects c) mustEqual true
       }
 
       "rect completely inside not over circle center" >> {
         val c = Circle(Vec2(3, 4), 20)
-        val r = AARect(Vec2(-3, 3), Vec2(2, 5))
+        val r = AARect(Vec2(-3, 3), Vec2(2, 6))
         (c intersects r) mustEqual true
         (r intersects c) mustEqual true
       }
