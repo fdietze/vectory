@@ -324,78 +324,14 @@ object Algorithms {
   }
 
   def intersectCircleConvexPolygon(p: ConvexPolygonLike, c: Circle): Boolean = {
-    // https://bitlush.com/blog/circle-vs-polygon-collision-detection-in-c-sharp
-
-    val r = c.r
-    val rSq = c.r * c.r
-    val vertices = p.cornersCCW
-    val n = vertices.size
-    val circleCenter = c.center
-
-    var i = 0
-    var vertex = vertices(n - 1)
-    var nextVertex: Vec2 = null
-    var axis: Vec2 = null
-    var distance = 0.0
-    var nearestDistance = Double.MaxValue
-    var nearestIsInside = false
-    var nearestVertex = -1
-    var lastIsInside = false
-    var isInside = false
-    var edge: Vec2 = null
-    while (i < n) {
-      nextVertex = vertices(i)
-      axis = c.center - vertex
-      distance = axis.lengthSq - rSq
-      if (distance <= 0) return true
-      isInside = false
-      edge = nextVertex - vertex
-
-      val edgeLengthSquared = edge.lengthSq
-
-      if (edgeLengthSquared != 0) {
-        val dot = edge dot axis
-
-        if (dot >= 0 && dot <= edgeLengthSquared) {
-          val projection = vertex + edge * (dot / edgeLengthSquared)
-
-          axis = projection - circleCenter
-
-          if (axis.lengthSq <= rSq) return true
-          else {
-            if (edge.x > 0) {
-              if (axis.y > 0) {
-                return false
-              }
-            } else if (edge.x < 0) {
-              if (axis.y < 0) return false
-            } else if (edge.y > 0) {
-              if (axis.x < 0) return false
-            } else {
-              if (axis.x > 0) return false
+    if (p.includes(c.center)) return true
+    p.edges.exists(segment => distancePointLineSegment(c.x, c.y, segment.x1, segment.y1, segment.x2, segment.y2) <= c.r)
             }
 
-            isInside = true
-          }
-        }
-      }
+  def intersectCircleConvexPolygonMtd(p: ConvexPolygonLike, c: Circle): Option[Vec2] = {
+    // TODO: https://github.com/snowkit/differ/blob/master/differ/sat/SAT2D.hx
 
-      if (distance < nearestDistance) {
-        nearestDistance = distance
-        nearestIsInside = isInside || lastIsInside
-        nearestVertex = i
-      }
-
-      vertex = nextVertex
-      lastIsInside = isInside
-      i += 1
-    }
-
-    if (nearestVertex == 0) {
-      return nearestIsInside || lastIsInside
-    } else {
-      return nearestIsInside
-    }
+    ???
   }
 
   // returns shortest vector to separate polygons
