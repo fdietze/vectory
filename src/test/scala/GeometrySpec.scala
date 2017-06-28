@@ -318,8 +318,8 @@ class GeometrySpec extends Specification {
           val c = Circle(Vec2(-58.538346206308354, 134.5704658111136), 168.11767240585183)
           (p intersects c) mustEqual true
           (c intersects p) mustEqual true
+        }
       }
-    }
     }
 
     "ConvexPolygon" >> {
@@ -377,10 +377,10 @@ class GeometrySpec extends Specification {
         val r = AARect(Vec2(3, 3.5), Vec2(2, 1))
         val e = r.edges.toList
         e mustEqual List(
+          Line(Vec2(2, 4), Vec2(2, 3)),
           Line(Vec2(2, 3), Vec2(4, 3)),
           Line(Vec2(4, 3), Vec2(4, 4)),
-          Line(Vec2(4, 4), Vec2(2, 4)),
-          Line(Vec2(2, 4), Vec2(2, 3))
+          Line(Vec2(4, 4), Vec2(2, 4))
         )
       }
 
@@ -441,10 +441,10 @@ class GeometrySpec extends Specification {
           Vec2(Math.round(l.end.x), Math.round(l.end.y))
         ))
         rounded mustEqual List(
+          Line(Vec2(16, 16), Vec2(4, 0)),
           Line(Vec2(4, 0), Vec2(0, 3)),
           Line(Vec2(0, 3), Vec2(12, 19)),
-          Line(Vec2(12, 19), Vec2(16, 16)),
-          Line(Vec2(16, 16), Vec2(4, 0))
+          Line(Vec2(12, 19), Vec2(16, 16))
         )
       }
       "PointInside" >> {

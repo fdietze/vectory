@@ -59,7 +59,7 @@ case class Line(
   def center = (start + end) / 2
 
   def leftOf(p: Vec2) = (vector cross (p - start)) > 0
-  def rightOf(p: Vec2) = !leftOf(p)
+  def rightOf(p: Vec2) = (vector cross (p - start)) <= 0
 
   def distance(that: Vec2): Double = Algorithms.distancePointLine(that.x, that.y, x1, y1, x2, y2)
   def segmentDistance(that: Vec2): Double = Algorithms.distancePointLineSegment(that.x, that.y, x1, y1, x2, y2)
@@ -100,7 +100,7 @@ case class Circle(center: Vec2, r: Double) {
 
 trait ConvexPolygonLike {
   def cornersCCW: IndexedSeq[Vec2] // in counter clockwise order
-  lazy val edges: IndexedSeq[Line] = Algorithms.slidingRotate(cornersCCW).map(e => Line(e.head, e.last))
+  lazy val edges: IndexedSeq[Line] = Algorithms.polygonCornersToEdges(cornersCCW)
 
   // axis aligned bounding box
   def aabb = Algorithms.axisAlignedBoundingBox(cornersCCW)
@@ -175,7 +175,19 @@ case class AARect(center: Vec2, size: Vec2) extends Rect {
 }
 
 object Algorithms {
-  def slidingRotate[T](l: Seq[T]): IndexedSeq[Seq[T]] = (l :+ l.head).sliding(2).toIndexedSeq
+  def polygonCornersToEdges(corners: IndexedSeq[Vec2]): IndexedSeq[Line] = {
+    val n = corners.size
+    val edges = new Array[Line](n)
+    var i = 0
+    var last = corners(n - 1)
+    while (i < n) {
+      val current = corners(i)
+      edges(i) = Line(last, current)
+      last = current
+      i += 1
+    }
+    edges
+  }
 
   def distancePointLine(x0: Double, y0: Double, x1: Double, y1: Double, x2: Double, y2: Double): Double = {
     // Point: x0, y0
@@ -326,7 +338,7 @@ object Algorithms {
   def intersectCircleConvexPolygon(p: ConvexPolygonLike, c: Circle): Boolean = {
     if (p.includes(c.center)) return true
     p.edges.exists(segment => distancePointLineSegment(c.x, c.y, segment.x1, segment.y1, segment.x2, segment.y2) <= c.r)
-            }
+  }
 
   def intersectCircleConvexPolygonMtd(p: ConvexPolygonLike, c: Circle): Option[Vec2] = {
     // TODO: https://github.com/snowkit/differ/blob/master/differ/sat/SAT2D.hx
