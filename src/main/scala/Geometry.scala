@@ -83,16 +83,6 @@ case class Line(
 
   def length = Math.sqrt(lengthSq)
 
-  def canEqual(other: Any): Boolean = other.isInstanceOf[Line]
-
-  override def equals(other: Any): Boolean = other match {
-    case that: Line => (that canEqual this) &&
-      (this.start == that.start && this.end == that.end) ||
-      (this.start == that.end && this.end == that.start)
-    case _ => false
-  }
-
-  override def hashCode = start.hashCode * end.hashCode // multiply to be commutative
 }
 
 case class Circle(center: Vec2, r: Double) {

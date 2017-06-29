@@ -154,19 +154,6 @@ class GeometrySpec extends Specification {
         (l leftOf p) must beTrue
       }
 
-      "equals" >> {
-        val l = Line(Vec2(7, 3), Vec2(8, 4))
-        val m = Line(Vec2(8, 4), Vec2(7, 3))
-        l mustEqual l
-        l mustEqual m
-      }
-
-      "hashCode" >> {
-        val l = Line(Vec2(7, 3), Vec2(8, 4))
-        val m = Line(Vec2(8, 4), Vec2(7, 3))
-        l.hashCode mustEqual m.hashCode
-      }
-
       "length" >> {
         val l = Line(Vec2(5, 5), Vec2(8, 9))
         l.length mustEqual 5
