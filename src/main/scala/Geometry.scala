@@ -8,31 +8,31 @@ import annotation.meta.field
 // for example Vec2.normalized
 // https://en.wikipedia.org/wiki/Fast_inverse_square_root
 
-case class Vec2(x: Double, y: Double) {
-  def width = x
-  def height = y
+final case class Vec2(x: Double, y: Double) {
+  @inline def width = x
+  @inline def height = y
 
-  def unary_- = Vec2(-x, -y)
-  def abs = Vec2(Math.abs(x), Math.abs(y))
+  @inline def unary_- = Vec2(-x, -y)
+  @inline def abs = Vec2(Math.abs(x), Math.abs(y))
 
-  def +(that: Vec2) = Vec2(this.x + that.x, this.y + that.y)
-  def +(that: Double) = Vec2(this.x + that, this.y + that)
-  def -(that: Vec2) = Vec2(this.x - that.x, this.y - that.y)
-  def -(that: Double) = Vec2(this.x - that, this.y - that)
-  def *(a: Double) = Vec2(this.x * a, this.y * a)
-  def /(a: Double) = Vec2(this.x / a, this.y / a)
-  def dot(that: Vec2) = this.x * that.x + this.y * that.y
-  def cross(that: Vec2) = this.x * that.y - this.y * that.x
+  @inline def +(that: Vec2) = Vec2(this.x + that.x, this.y + that.y)
+  @inline def +(that: Double) = Vec2(this.x + that, this.y + that)
+  @inline def -(that: Vec2) = Vec2(this.x - that.x, this.y - that.y)
+  @inline def -(that: Double) = Vec2(this.x - that, this.y - that)
+  @inline def *(a: Double) = Vec2(this.x * a, this.y * a)
+  @inline def /(a: Double) = Vec2(this.x / a, this.y / a)
+  @inline def dot(that: Vec2) = this.x * that.x + this.y * that.y
+  @inline def cross(that: Vec2) = this.x * that.y - this.y * that.x
 
-  def lengthSq = x * x + y * y
-  def length = Math.sqrt(lengthSq)
-  def normalized = this / length
-  def area = x * y
-  def normal = Vec2(y, -x)
+  @inline def lengthSq = x * x + y * y
+  @inline def length = Math.sqrt(lengthSq)
+  @inline def normalized = this / length
+  @inline def area = x * y
+  @inline def normal = Vec2(y, -x)
 
-  def angle = Math.atan2(y, x)
+  @inline def angle = Math.atan2(y, x)
 
-  def toTuple = (x, y)
+  @inline def toTuple = (x, y)
 }
 
 object Vec2 {
@@ -45,27 +45,27 @@ object Vec2 {
   val unitX = new Vec2(1, 0)
   val unitY = new Vec2(0, 1)
 
-  def dot(x1: Double, y1: Double, x2: Double, y2: Double) = x1 * x2 + y1 * y2
-  def lengthSq(x: Double, y: Double) = x * x + y * y
-  def length(x: Double, y: Double) = Math.sqrt(lengthSq(x, y))
-  def normalize(length: Double, component: Double) = component / length
+  @inline def dot(x1: Double, y1: Double, x2: Double, y2: Double) = x1 * x2 + y1 * y2
+  @inline def lengthSq(x: Double, y: Double) = x * x + y * y
+  @inline def length(x: Double, y: Double) = Math.sqrt(lengthSq(x, y))
+  @inline def normalize(length: Double, component: Double) = component / length
 }
 
-case class Line(
+final case class Line(
   start: Vec2,
   end:   Vec2
 ) {
-  def x1 = start.x
-  def y1 = start.y
-  def x2 = end.x
-  def y2 = end.y
+  @inline def x1 = start.x
+  @inline def y1 = start.y
+  @inline def x2 = end.x
+  @inline def y2 = end.y
 
-  def vector = end - start
-  def normal = vector.normal
-  def center = (start + end) / 2
+  @inline def vector = end - start
+  @inline def normal = vector.normal
+  @inline def center = (start + end) / 2
 
-  def leftOf(p: Vec2) = (vector cross (p - start)) > 0
-  def rightOf(p: Vec2) = (vector cross (p - start)) <= 0
+  @inline def leftOf(p: Vec2) = (vector cross (p - start)) > 0
+  @inline def rightOf(p: Vec2) = (vector cross (p - start)) <= 0
 
   def distance(that: Vec2): Double = Algorithms.distancePointLine(that.x, that.y, x1, y1, x2, y2)
   def segmentDistance(that: Vec2): Double = Algorithms.distancePointLineSegment(that.x, that.y, x1, y1, x2, y2)
@@ -75,27 +75,26 @@ case class Line(
   def cutBy(r: ConvexPolygonLike): Option[Line] = Algorithms.cutLineByPolyAtStartOrEnd(this, r)
   def clampBy(r: ConvexPolygonLike): Option[Line] = Algorithms.clampLineByPoly(this, r)
 
-  def lengthSq = {
+  @inline def lengthSq = {
     val dx = start.x - end.x
     val dy = start.y - end.y
     dx * dx + dy * dy
   }
 
-  def length = Math.sqrt(lengthSq)
-
+  @inline def length = Math.sqrt(lengthSq)
 }
 
-case class Circle(center: Vec2, r: Double) {
-  def x = center.x
-  def y = center.y
-  def d = r * 2
+final case class Circle(center: Vec2, r: Double) {
+  @inline def x = center.x
+  @inline def y = center.y
+  @inline def d = r * 2
 
   def intersects(rect: AARect) = Algorithms.intersect(this, rect)
   def intersects(that: ConvexPolygonLike) = Algorithms.intersectCircleConvexPolygon(that, this)
   def intersectsMtd(that: ConvexPolygonLike): Option[Vec2] = Algorithms.intersectCircleConvexPolygonMtd(that, this, flip = true)
 }
 
-trait ConvexPolygonLike {
+sealed abstract class ConvexPolygonLike {
   def verticesCCW: IndexedSeq[Vec2] // in counter clockwise order
   lazy val edges: IndexedSeq[Line] = Algorithms.polygonCornersToEdges(verticesCCW)
 
@@ -105,22 +104,22 @@ trait ConvexPolygonLike {
   def intersect(line: Line) = Algorithms.intersect(this, line)
 
   def includes(v: Vec2): Boolean = edges.forall(_ leftOf v) // edges are ccw
-  def includes(l: Line): Boolean = includes(l.start) && includes(l.end)
+  @inline def includes(l: Line): Boolean = includes(l.start) && includes(l.end)
   def intersectsMtd(that: ConvexPolygonLike): Option[Vec2] = Algorithms.intersect2ConvexPolygonMtd(this, that)
   def intersects(that: Circle): Boolean = Algorithms.intersectCircleConvexPolygon(this, that)
   def intersectsMtd(that: Circle): Option[Vec2] = Algorithms.intersectCircleConvexPolygonMtd(this, that, flip = false)
 }
 
-case class ConvexPolygon(verticesCCW: IndexedSeq[Vec2]) extends ConvexPolygonLike
+final case class ConvexPolygon(verticesCCW: IndexedSeq[Vec2]) extends ConvexPolygonLike
 
-trait Rect extends ConvexPolygonLike {
+sealed abstract class Rect extends ConvexPolygonLike {
   def center: Vec2
-  def x = center.x
-  def y = center.y
+  @inline def x = center.x
+  @inline def y = center.y
 
   def size: Vec2
-  def width = size.x
-  def height = size.y
+  @inline def width = size.x
+  @inline def height = size.y
 
   def angle: Double
 
@@ -132,7 +131,7 @@ object Rect {
   def apply(center: Vec2, size: Vec2, angle: Double = 0): Rect = if (angle == 0) AARect(center, size) else RotatedRect(center, size, angle)
 }
 
-case class RotatedRect(center: Vec2, size: Vec2, angle: Double) extends Rect {
+final case class RotatedRect(center: Vec2, size: Vec2, angle: Double) extends Rect {
   import Math.{sin, cos}
 
   lazy val toRight = Vec2(cos(angle), sin(angle)) * (width / 2)
@@ -149,7 +148,7 @@ case class RotatedRect(center: Vec2, size: Vec2, angle: Double) extends Rect {
   )
 }
 
-case class AARect(center: Vec2, size: Vec2) extends Rect {
+final case class AARect(center: Vec2, size: Vec2) extends Rect {
   override def angle = 0
 
   lazy val minCorner = center - size / 2
@@ -242,7 +241,7 @@ object Algorithms {
     AARect(Vec2(xMin + width * 0.5, yMin + height * 0.5), Vec2(width, height))
   }
 
-  case class LineIntersection(pos: Vec2, onLine1: Boolean, onLine2: Boolean)
+  final case class LineIntersection(pos: Vec2, onLine1: Boolean, onLine2: Boolean)
   def intersect(line1: Line, line2: Line): Option[LineIntersection] = {
     // if the lines intersect, the result contains the x and y of the intersection
     // (treating the lines as infinite) and booleans for
@@ -341,12 +340,12 @@ object Algorithms {
   def intersectCircleConvexPolygonMtd(p: ConvexPolygonLike, c: Circle, flip: Boolean): Option[Vec2] = {
     // https://github.com/snowkit/differ/blob/master/differ/sat/SAT2D.hx
 
-    def findNormalAxisX(verts: IndexedSeq[Vec2], index: Int): Double = {
+    @inline def findNormalAxisX(verts: IndexedSeq[Vec2], index: Int): Double = {
       var v2 = if (index >= verts.length - 1) verts(0) else verts(index + 1)
       return -(v2.y - verts(index).y)
     }
 
-    def findNormalAxisY(verts: IndexedSeq[Vec2], index: Int): Double = {
+    @inline def findNormalAxisY(verts: IndexedSeq[Vec2], index: Int): Double = {
       var v2 = if (index >= verts.length - 1) verts(0) else verts(index + 1)
       return (v2.x - verts(index).x)
     }

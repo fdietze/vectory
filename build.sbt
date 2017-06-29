@@ -34,6 +34,7 @@ lazy val vectory = (crossProject.crossType(CrossType.Pure) in file("."))
       "-explaintypes" ::
       "-feature" ::
       "-language:_" ::
+      "-opt:l:classpath" :: // only 2.12
       Nil
     )
   )
