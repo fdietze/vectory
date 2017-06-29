@@ -5,6 +5,7 @@ import scala.scalajs.js.annotation.{JSExport, JSExportAll}
 import annotation.meta.field
 
 //TODO: use Fast Inverse Square Root where possible
+// for example Vec2.normalized
 // https://en.wikipedia.org/wiki/Fast_inverse_square_root
 
 case class Vec2(x: Double, y: Double) {
@@ -43,6 +44,11 @@ object Vec2 {
   val zero = new Vec2(0, 0)
   val unitX = new Vec2(1, 0)
   val unitY = new Vec2(0, 1)
+
+  def dot(x1: Double, y1: Double, x2: Double, y2: Double) = x1 * x2 + y1 * y2
+  def lengthSq(x: Double, y: Double) = x * x + y * y
+  def length(x: Double, y: Double) = Math.sqrt(lengthSq(x, y))
+  def normalize(length: Double, component: Double) = component / length
 }
 
 case class Line(
@@ -96,24 +102,26 @@ case class Circle(center: Vec2, r: Double) {
 
   def intersects(rect: AARect) = Algorithms.intersect(this, rect)
   def intersects(that: ConvexPolygonLike) = Algorithms.intersectCircleConvexPolygon(that, this)
+  def intersectsMtd(that: ConvexPolygonLike): Option[Vec2] = Algorithms.intersectCircleConvexPolygonMtd(that, this, flip = true)
 }
 
 trait ConvexPolygonLike {
-  def cornersCCW: IndexedSeq[Vec2] // in counter clockwise order
-  lazy val edges: IndexedSeq[Line] = Algorithms.polygonCornersToEdges(cornersCCW)
+  def verticesCCW: IndexedSeq[Vec2] // in counter clockwise order
+  lazy val edges: IndexedSeq[Line] = Algorithms.polygonCornersToEdges(verticesCCW)
 
   // axis aligned bounding box
-  def aabb = Algorithms.axisAlignedBoundingBox(cornersCCW)
+  def aabb = Algorithms.axisAlignedBoundingBox(verticesCCW)
 
   def intersect(line: Line) = Algorithms.intersect(this, line)
 
-  def includes(v: Vec2): Boolean = edges.forall(_ rightOf v)
+  def includes(v: Vec2): Boolean = edges.forall(_ leftOf v) // edges are ccw
   def includes(l: Line): Boolean = includes(l.start) && includes(l.end)
   def intersectsMtd(that: ConvexPolygonLike): Option[Vec2] = Algorithms.intersect2ConvexPolygonMtd(this, that)
   def intersects(that: Circle): Boolean = Algorithms.intersectCircleConvexPolygon(this, that)
+  def intersectsMtd(that: Circle): Option[Vec2] = Algorithms.intersectCircleConvexPolygonMtd(this, that, flip = false)
 }
 
-case class ConvexPolygon(cornersCCW: IndexedSeq[Vec2]) extends ConvexPolygonLike
+case class ConvexPolygon(verticesCCW: IndexedSeq[Vec2]) extends ConvexPolygonLike
 
 trait Rect extends ConvexPolygonLike {
   def center: Vec2
@@ -138,16 +146,16 @@ case class RotatedRect(center: Vec2, size: Vec2, angle: Double) extends Rect {
   import Math.{sin, cos}
 
   lazy val toRight = Vec2(cos(angle), sin(angle)) * (width / 2)
-  lazy val toBottom = Vec2(-sin(angle), cos(angle)) * (height / 2)
+  lazy val toTop = Vec2(-sin(angle), cos(angle)) * (height / 2)
 
-  lazy val minCorner = center - toRight - toBottom
-  lazy val maxCorner = center + toRight + toBottom
+  lazy val minCorner = center - toRight - toTop
+  lazy val maxCorner = center + toRight + toTop
 
-  lazy val cornersCCW = Vector(
+  lazy val verticesCCW = Array(
     minCorner,
-    center - toRight + toBottom,
+    center + toRight - toTop,
     maxCorner,
-    center + toRight - toBottom
+    center - toRight + toTop
   )
 }
 
@@ -161,7 +169,7 @@ case class AARect(center: Vec2, size: Vec2) extends Rect {
 
   override def includes(v: Vec2): Boolean = v.x > minCorner.x && v.y > minCorner.y && v.x < maxCorner.x && v.y < maxCorner.y
 
-  lazy val cornersCCW = Vector(
+  lazy val verticesCCW = Array(
     minCorner,
     minCorner + Vec2(size.x, 0),
     maxCorner,
@@ -340,10 +348,148 @@ object Algorithms {
     p.edges.exists(segment => distancePointLineSegment(c.x, c.y, segment.x1, segment.y1, segment.x2, segment.y2) <= c.r)
   }
 
-  def intersectCircleConvexPolygonMtd(p: ConvexPolygonLike, c: Circle): Option[Vec2] = {
-    // TODO: https://github.com/snowkit/differ/blob/master/differ/sat/SAT2D.hx
+  def intersectCircleConvexPolygonMtd(p: ConvexPolygonLike, c: Circle, flip: Boolean): Option[Vec2] = {
+    // https://github.com/snowkit/differ/blob/master/differ/sat/SAT2D.hx
 
-    ???
+    def findNormalAxisX(verts: IndexedSeq[Vec2], index: Int): Double = {
+      var v2 = if (index >= verts.length - 1) verts(0) else verts(index + 1)
+      return -(v2.y - verts(index).y)
+    }
+
+    def findNormalAxisY(verts: IndexedSeq[Vec2], index: Int): Double = {
+      var v2 = if (index >= verts.length - 1) verts(0) else verts(index + 1)
+      return (v2.x - verts(index).x)
+    }
+
+    val verts = p.verticesCCW
+    val n = verts.size
+
+    val circleX = c.x
+    val circleY = c.y
+
+    var testDistance = Double.MaxValue
+    var distance = 0.0
+    var closestX = 0.0
+    var closestY = 0.0
+    var overlap = 0.0
+    var unitVectorX = 0.0
+    var unitVectorY = 0.0
+    var i = 0
+    while (i < n) {
+      distance = Vec2.lengthSq(circleX - verts(i).x, circleY - verts(i).y)
+
+      if (distance < testDistance) {
+        testDistance = distance
+        closestX = verts(i).x
+        closestY = verts(i).y
+      }
+      i += 1
+    }
+
+    var normalAxisX = closestX - circleX
+    var normalAxisY = closestY - circleY
+    var normAxisLen = Vec2.length(normalAxisX, normalAxisY)
+    normalAxisX = Vec2.normalize(normAxisLen, normalAxisX)
+    normalAxisY = Vec2.normalize(normAxisLen, normalAxisY)
+
+    //project all its points, 0 outside the loop
+    var test = 0.0
+    var min1 = Vec2.dot(normalAxisX, normalAxisY, verts(0).x, verts(0).y)
+    var max1 = min1
+
+    var j = 0
+    while (j < n) {
+      test = Vec2.dot(normalAxisX, normalAxisY, verts(j).x, verts(j).y)
+      if (test < min1) min1 = test
+      if (test > max1) max1 = test
+      j += 1
+    }
+
+    // project the circle
+    var max2 = c.r
+    var min2 = -c.r
+    var offset = Vec2.dot(normalAxisX, normalAxisY, -circleX, -circleY)
+
+    min1 += offset
+    max1 += offset
+
+    var test1 = min1 - max2
+    var test2 = min2 - max1
+
+    //if either test is greater than 0, there is a gap, we can give up now.
+    if (test1 > 0 || test2 > 0) return None
+
+    // circle distance check
+    var distMin = -(max2 - min1)
+    if (flip) distMin *= -1
+
+    overlap = distMin
+    unitVectorX = normalAxisX
+    unitVectorY = normalAxisY
+    var closest = Math.abs(distMin)
+
+    // find the normal axis for each point and project
+    i = 0
+    while (i < n) {
+
+      normalAxisX = findNormalAxisX(verts, i)
+      normalAxisY = findNormalAxisY(verts, i)
+      var aLen = Vec2.length(normalAxisX, normalAxisY)
+      normalAxisX = Vec2.normalize(aLen, normalAxisX)
+      normalAxisY = Vec2.normalize(aLen, normalAxisY)
+
+      // project the polygon(again? yes, circles vs. polygon require more testing...)
+      min1 = Vec2.dot(normalAxisX, normalAxisY, verts(0).x, verts(0).y)
+      max1 = min1 //set max and min
+
+      //project all the other points(see, cirlces v. polygons use lots of this...)
+      j = 0
+      while (j < n) {
+        test = Vec2.dot(normalAxisX, normalAxisY, verts(j).x, verts(j).y)
+        if (test < min1) min1 = test
+        if (test > max1) max1 = test
+        j += 1
+      }
+
+      // project the circle(again)
+      max2 = c.r //max is radius
+      min2 = -c.r //min is negative radius
+
+      //offset points
+      offset = Vec2.dot(normalAxisX, normalAxisY, -circleX, -circleY)
+      min1 += offset
+      max1 += offset
+
+      // do the test, again
+      test1 = min1 - max2
+      test2 = min2 - max1
+
+      //failed.. quit now
+      if (test1 > 0 || test2 > 0) {
+        return None
+      }
+
+      distMin = -(max2 - min1)
+      if (flip) distMin *= -1
+
+      if (Math.abs(distMin) < closest) {
+        unitVectorX = normalAxisX
+        unitVectorY = normalAxisY
+        overlap = distMin
+        closest = Math.abs(distMin)
+      }
+
+      i += 1
+    }
+
+    //if you made it here, there is a collision!!!!!
+
+    // shape1 = if (flip) polygon else c
+    // shape2 = if (flip) c else polygon
+    val separationX = unitVectorX * overlap
+    val separationY = unitVectorY * overlap
+
+    return Some(Vec2(separationX, separationY))
   }
 
   // returns shortest vector to separate polygons
@@ -370,8 +516,8 @@ object Algorithms {
 
     def separatingAxis(edge: Line, a: ConvexPolygonLike, b: ConvexPolygonLike): Boolean = {
       val axis = edge.normal
-      val (aMin, aMax) = projectionExtents(axis, a.cornersCCW)
-      val (bMin, bMax) = projectionExtents(axis, b.cornersCCW)
+      val (aMin, aMax) = projectionExtents(axis, a.verticesCCW)
+      val (bMin, bMax) = projectionExtents(axis, b.verticesCCW)
       if (aMax < bMin || bMax < aMin) return true
 
       val d0 = aMax - bMin
@@ -396,7 +542,7 @@ object Algorithms {
 
     if (noSeparatingAxisFound) {
       // overlapping, provide vector to separate
-      Option(shortestAxis)
+      Some(shortestAxis)
     } else {
       // not overlapping
       None

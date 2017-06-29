@@ -283,6 +283,8 @@ class GeometrySpec extends Specification {
           val c = Circle(Vec2(2, -2), 1)
           (p intersects c) mustEqual false
           (c intersects p) mustEqual false
+          (p intersectsMtd c) mustEqual None
+          (c intersectsMtd p) mustEqual None
         }
 
         "circle touches polygon at line" >> {
@@ -290,6 +292,8 @@ class GeometrySpec extends Specification {
           val c = Circle(Vec2(1, -1), 2)
           (p intersects c) mustEqual true
           (c intersects p) mustEqual true
+          (p intersectsMtd c) mustEqual Some(Vec2(0.8000000000000003, -0.6000000000000001))
+          (c intersectsMtd p) mustEqual Some(Vec2(-0.8000000000000003, 0.6000000000000001))
         }
 
         "circle touches polygon at corner" >> {
@@ -297,6 +301,8 @@ class GeometrySpec extends Specification {
           val c = Circle(Vec2(-1, -4), 3)
           (p intersects c) mustEqual true
           (c intersects p) mustEqual true
+          (p intersectsMtd c) mustEqual Some(Vec2(0, -1))
+          (c intersectsMtd p) mustEqual Some(Vec2(0, 1))
         }
 
         "circle not touching at corner" >> {
@@ -304,13 +310,17 @@ class GeometrySpec extends Specification {
           val c = Circle(Vec2(-1, -5), 1)
           (p intersects c) mustEqual false
           (c intersects p) mustEqual false
+          (p intersectsMtd c) mustEqual None
+          (c intersectsMtd p) mustEqual None
         }
 
         "circle completely inside polygon" >> {
           val p = ConvexPolygon(IndexedSeq(Vec2(-3, 1), Vec2(-1, -4), Vec2(3, -5), Vec2(5, -1), Vec2(2, 2)))
-          val c = Circle(Vec2(2, -2), 3)
+          val c = Circle(Vec2(2, -2), 2)
           (p intersects c) mustEqual true
           (c intersects p) mustEqual true
+          (p intersectsMtd c) mustEqual Some(Vec2(3.788854381999832, -1.894427190999916))
+          (c intersectsMtd p) mustEqual Some(Vec2(-3.788854381999832, 1.894427190999916))
         }
 
         "circle completely inside large polygon" >> {
@@ -323,6 +333,12 @@ class GeometrySpec extends Specification {
     }
 
     "ConvexPolygon" >> {
+      "point inside" >> {
+        val p = ConvexPolygon(IndexedSeq(Vec2(-3, 1), Vec2(-1, -4), Vec2(3, -5), Vec2(5, -1), Vec2(2, 2)))
+        val c = Circle(Vec2(2, -2), 2)
+        p.includes(c.center) mustEqual true
+      }
+
       "intersect 2 convex polygons" >> {
         "no intersection" >> {
           val a = ConvexPolygon(IndexedSeq(Vec2(-3, 1), Vec2(-1, -2), Vec2(2, 2)))
@@ -367,9 +383,9 @@ class GeometrySpec extends Specification {
         r.maxCorner mustEqual Vec2(15, 7)
       }
 
-      "cornersCCW" >> {
+      "verticesCCW" >> {
         val r = AARect(Vec2(3, 3.5), Vec2(2, 1))
-        val c = r.cornersCCW.toList
+        val c = r.verticesCCW
         c.toList mustEqual List(Vec2(2, 3), Vec2(4, 3), Vec2(4, 4), Vec2(2, 4))
       }
 
@@ -419,6 +435,12 @@ class GeometrySpec extends Specification {
       }
 
       "minMaxCorner" >> {
+        val r = RotatedRect(Vec2(0, 0), Vec2(2, 2), 0)
+        r.minCorner mustEqual Vec2(-1, -1)
+        r.maxCorner mustEqual Vec2(1, 1)
+      }
+
+      "minMaxCorner" >> {
         val r = RotatedRect(Vec2(8, 9.5), Vec2(20, 5), Math.atan(4.0 / 3.0))
         val roundedMin = Vec2(Math.round(r.minCorner.x), Math.round(r.minCorner.y))
         val roundedMax = Vec2(Math.round(r.maxCorner.x), Math.round(r.maxCorner.y))
@@ -426,11 +448,10 @@ class GeometrySpec extends Specification {
         roundedMax mustEqual Vec2(12, 19)
       }
 
-      "cornersCCW" >> {
+      "verticesCCW" >> {
         val r = RotatedRect(Vec2(8, 9.5), Vec2(20, 5), Math.atan(4.0 / 3.0))
-        val c = r.cornersCCW.toList
-        val rounded = c.toList.map(v => Vec2(Math.round(v.x), Math.round(v.y)))
-        rounded mustEqual List(Vec2(4, 0), Vec2(0, 3), Vec2(12, 19), Vec2(16, 16))
+        val rounded = r.verticesCCW.map(v => Vec2(Math.round(v.x), Math.round(v.y)))
+        rounded.toList mustEqual List(Vec2(4, 0), Vec2(16, 16), Vec2(12, 19), Vec2(0, 3))
       }
 
       "edges" >> {
@@ -441,10 +462,10 @@ class GeometrySpec extends Specification {
           Vec2(Math.round(l.end.x), Math.round(l.end.y))
         ))
         rounded mustEqual List(
-          Line(Vec2(16, 16), Vec2(4, 0)),
-          Line(Vec2(4, 0), Vec2(0, 3)),
-          Line(Vec2(0, 3), Vec2(12, 19)),
-          Line(Vec2(12, 19), Vec2(16, 16))
+          Line(Vec2(0, 3), Vec2(4, 0)),
+          Line(Vec2(4, 0), Vec2(16, 16)),
+          Line(Vec2(16, 16), Vec2(12, 19)),
+          Line(Vec2(12, 19), Vec2(0, 3))
         )
       }
       "PointInside" >> {
