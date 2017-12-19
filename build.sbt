@@ -1,8 +1,8 @@
 name in ThisBuild := "vectory"
 version in ThisBuild := "0.1.0"
 
-scalaVersion in ThisBuild := "2.12.2"
-crossScalaVersions in ThisBuild := Seq("2.10.6", "2.11.11", "2.12.2")
+scalaVersion in ThisBuild := "2.12.4"
+crossScalaVersions in ThisBuild := Seq("2.10.7", "2.11.12", "2.12.4")
 
 lazy val root = project.in(file(".")).
   aggregate(vectoryJS, vectoryJVM).
@@ -34,7 +34,6 @@ lazy val vectory = (crossProject.crossType(CrossType.Pure) in file("."))
       "-explaintypes" ::
       "-feature" ::
       "-language:_" ::
-      "-opt:l:classpath" :: // only 2.12
       Nil
     )
   )
