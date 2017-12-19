@@ -37,6 +37,13 @@ lazy val vectory = (crossProject.crossType(CrossType.Pure) in file("."))
       Nil
     )
   )
+  .jsSettings(
+    scalacOptions += {
+      val local = baseDirectory.value.toURI
+      val remote = s"https://raw.githubusercontent.com/fdietze/vectory/${git.gitHeadCommit.value.get}/"
+      s"-P:scalajs:mapSourceURI:$local->$remote"
+    }
+  )
 
 lazy val vectoryJVM = vectory.jvm
 lazy val vectoryJS = vectory.js
