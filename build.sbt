@@ -10,29 +10,29 @@ lazy val vectory = (crossProject.crossType(CrossType.Pure))
       Nil
     ),
 
-    scalaJSStage in Test := FullOptStage,
+  scalaJSStage in Test := FullOptStage,
 
-    initialCommands in console := """
-    import vectory._
-    """,
+  initialCommands in console := """
+  import vectory._
+  """,
 
   scalacOptions ++=
     "-encoding" :: "UTF-8" ::
-      "-unchecked" ::
-      "-deprecation" ::
-      "-explaintypes" ::
-      "-feature" ::
-      "-language:_" ::
-      "-Xcheckinit" ::
-      "-Xfuture" ::
-      "-Xlint:-unused" ::
-      "-Ypartial-unification" ::
-      "-Yno-adapted-args" ::
-      "-Ywarn-infer-any" ::
-      "-Ywarn-value-discard" ::
-      "-Ywarn-nullary-override" ::
-      "-Ywarn-nullary-unit" ::
-      Nil,
+    "-unchecked" ::
+    "-deprecation" ::
+    "-explaintypes" ::
+    "-feature" ::
+    "-language:_" ::
+    "-Xcheckinit" ::
+    "-Xfuture" ::
+    "-Xlint:-unused" ::
+    "-Ypartial-unification" ::
+    "-Yno-adapted-args" ::
+    "-Ywarn-infer-any" ::
+    "-Ywarn-value-discard" ::
+    "-Ywarn-nullary-override" ::
+    "-Ywarn-nullary-unit" ::
+    Nil,
   )
   .jvmSettings(
     libraryDependencies += "org.scala-js" %% "scalajs-stubs" % scalaJSVersion % "provided"
@@ -47,29 +47,3 @@ lazy val vectory = (crossProject.crossType(CrossType.Pure))
 
 lazy val jvm = vectory.jvm
 lazy val js = vectory.js
-
-// publishing
-pgpSecretRing in Global := file("secring.gpg")
-pgpPublicRing in Global := file("pubring.gpg")
-pgpPassphrase in Global := Some("".toCharArray)
-
-pomExtra in Global := {
-  <url>https://github.com/fdietze/vectory</url>
-  <licenses>
-    <license>
-      <name>Apache 2</name>
-      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-    </license>
-  </licenses>
-  <scm>
-    <url>https://github.com/fdietze/vectory</url>
-    <connection>scm:git:git@github.com:fdietze/vectory.git</connection>
-  </scm>
-  <developers>
-    <developer>
-      <id>fdietze</id>
-      <name>Felix Dietze</name>
-      <url>https://github.com/fdietze</url>
-    </developer>
-  </developers>
-}
