@@ -1,7 +1,5 @@
 package vectory
 
-import scala.scalajs.js
-import scala.scalajs.js.annotation.{JSExport, JSExportAll}
 import annotation.meta.field
 
 //TODO: use Fast Inverse Square Root where possible

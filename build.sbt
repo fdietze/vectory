@@ -1,41 +1,41 @@
-name in ThisBuild := "vectory"
-version in ThisBuild := "0.1.0"
-
-scalaVersion in ThisBuild := "2.12.4"
-crossScalaVersions in ThisBuild := Seq("2.10.7", "2.11.12", "2.12.4")
-
-lazy val root = project.in(file(".")).
-  aggregate(vectoryJS, vectoryJVM).
-  settings(
-    publish := {},
-    publishLocal := {}
-  )
-
-lazy val vectory = (crossProject.crossType(CrossType.Pure) in file("."))
+lazy val vectory = (crossProject.crossType(CrossType.Pure))
   .settings(
+    organization := "com.github.fdietze",
+    name := "vectory",
+    version := "0.1.0",
+    scalaVersion := "2.12.4",
+    crossScalaVersions := Seq("2.10.7", "2.11.12", "2.12.4"),
     libraryDependencies ++= (
-      "org.scala-js" %% "scalajs-stubs" % scalaJSVersion ::
-      "org.specs2" %% "specs2-core" % "3.8.6" % "test" ::
+      "org.scalatest" %%% "scalatest" % "3.0.4" % Test ::
       Nil
     ),
 
-    scalacOptions in Test ++= Seq("-Yrangepos"), // for Specs2
-
-    //TODO: wartremover
+    scalaJSStage in Test := FullOptStage,
 
     initialCommands in console := """
     import vectory._
     """,
 
-    scalacOptions ++= (
-      "-encoding" :: "UTF-8" ::
+  scalacOptions ++=
+    "-encoding" :: "UTF-8" ::
       "-unchecked" ::
       "-deprecation" ::
       "-explaintypes" ::
       "-feature" ::
       "-language:_" ::
-      Nil
-    )
+      "-Xcheckinit" ::
+      "-Xfuture" ::
+      "-Xlint:-unused" ::
+      "-Ypartial-unification" ::
+      "-Yno-adapted-args" ::
+      "-Ywarn-infer-any" ::
+      "-Ywarn-value-discard" ::
+      "-Ywarn-nullary-override" ::
+      "-Ywarn-nullary-unit" ::
+      Nil,
+  )
+  .jvmSettings(
+    libraryDependencies += "org.scala-js" %% "scalajs-stubs" % scalaJSVersion % "provided"
   )
   .jsSettings(
     scalacOptions += {
@@ -45,15 +45,13 @@ lazy val vectory = (crossProject.crossType(CrossType.Pure) in file("."))
     }
   )
 
-lazy val vectoryJVM = vectory.jvm
-lazy val vectoryJS = vectory.js
+lazy val jvm = vectory.jvm
+lazy val js = vectory.js
 
 // publishing
 pgpSecretRing in Global := file("secring.gpg")
 pgpPublicRing in Global := file("pubring.gpg")
 pgpPassphrase in Global := Some("".toCharArray)
-
-organization in Global := "com.github.fdietze"
 
 pomExtra in Global := {
   <url>https://github.com/fdietze/vectory</url>
