@@ -82,6 +82,10 @@ final case class Line(
   @inline def length = Math.sqrt(lengthSq)
 }
 
+object Line {
+  def apply(x1: Double, y1: Double, x2: Double, y2: Double) = new Line(Vec2(x1,y1), Vec2(x2, y2))
+}
+
 final case class Circle(center: Vec2, r: Double) {
   @inline def x = center.x
   @inline def y = center.y
