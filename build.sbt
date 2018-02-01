@@ -2,7 +2,7 @@ lazy val vectory = (crossProject.crossType(CrossType.Pure))
   .settings(
     organization := "com.github.fdietze",
     name := "vectory",
-    version := "0.1.0",
+    version := "master-SNAPSHOT",
     scalaVersion := "2.12.4",
     crossScalaVersions := Seq("2.10.7", "2.11.12", "2.12.4"),
     libraryDependencies ++= (
