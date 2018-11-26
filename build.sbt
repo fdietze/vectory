@@ -5,8 +5,12 @@ lazy val vectory = (crossProject.crossType(CrossType.Pure))
     version := "master-SNAPSHOT",
     crossScalaVersions := Seq("2.10.7", "2.11.12", "2.12.7"),
     scalaVersion := crossScalaVersions.value.last,
+
+
+    resolvers += ("jitpack" at "https://jitpack.io"),
     libraryDependencies ++= (
       "org.scalatest" %%% "scalatest" % "3.0.5" % Test ::
+      "com.github.fdietze.flatland" %%% "flatland" % "a028b3c" ::
       Nil
     ),
 

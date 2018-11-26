@@ -2,11 +2,13 @@ package vectory
 
 import annotation.meta.field
 
+import flatland._
+
 //TODO: use Fast Inverse Square Root where possible
 // for example Vec2.normalized
 // https://en.wikipedia.org/wiki/Fast_inverse_square_root
 
-final case class Vec2(x: Double, y: Double) {
+@inline final case class Vec2(x: Double, y: Double) {
   @inline def width = x
   @inline def height = y
 
@@ -34,19 +36,31 @@ final case class Vec2(x: Double, y: Double) {
 }
 
 object Vec2 {
-  def apply(tuple: (Double, Double)) = new Vec2(tuple._1, tuple._2)
-  def apply(x: Double) = new Vec2(x, x)
-  def apply(v: { def x: Double; def y: Double }) = new Vec2(v.x, v.y)
-  def dim(v: { def width: Double; def height: Double }) = new Vec2(v.width, v.height)
+  @inline def apply(x:Double, y:Double) = new Vec2(x,y) // overwrites the case class factory and therefore allows inlined Vec2 constructions
+  @inline def apply(tuple: (Double, Double)) = new Vec2(tuple._1, tuple._2)
+  @inline def apply(x: Double) = new Vec2(x, x)
+  @inline def apply(v: { def x: Double; def y: Double }) = new Vec2(v.x, v.y)
+  @inline def dim(v: { def width: Double; def height: Double }) = new Vec2(v.width, v.height)
 
-  val zero = new Vec2(0, 0)
-  val unitX = new Vec2(1, 0)
-  val unitY = new Vec2(0, 1)
+  @inline val zero = new Vec2(0, 0)
+  @inline val unitX = new Vec2(1, 0)
+  @inline val unitY = new Vec2(0, 1)
 
   @inline def dot(x1: Double, y1: Double, x2: Double, y2: Double) = x1 * x2 + y1 * y2
   @inline def lengthSq(x: Double, y: Double) = x * x + y * y
   @inline def length(x: Double, y: Double) = Math.sqrt(lengthSq(x, y))
   @inline def normalize(length: Double, component: Double) = component / length
+}
+
+object Vec2Array {
+  @inline def create(n:Int) = new Vec2Array(InterleavedArray.create(n))
+}
+@inline final class Vec2Array(val interleaved:InterleavedArray[Double]) {
+  @inline def apply(i:Int) = Vec2(interleaved.x(i), interleaved.y(i))
+  @inline def update(i:Int, newVec:Vec2) = {
+    interleaved.updatex(i, newVec.x)
+    interleaved.updatey(i, newVec.y)
+  }
 }
 
 final case class Line(
