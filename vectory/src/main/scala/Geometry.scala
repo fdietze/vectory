@@ -36,7 +36,6 @@ import flatland._
 }
 
 object Vec2 {
-  @inline def apply(x:Double, y:Double) = new Vec2(x,y) // overwrites the case class factory and therefore allows inlined Vec2 constructions
   @inline def apply(tuple: (Double, Double)) = new Vec2(tuple._1, tuple._2)
   @inline def apply(x: Double) = new Vec2(x, x)
   @inline def apply(v: { def x: Double; def y: Double }) = new Vec2(v.x, v.y)
@@ -56,7 +55,7 @@ object Vec2Array {
   @inline def create(n:Int) = new Vec2Array(InterleavedArray.create(n))
 }
 @inline final class Vec2Array(val interleaved:InterleavedArray[Double]) {
-  @inline def apply(i:Int) = Vec2(interleaved.x(i), interleaved.y(i))
+  @inline def apply(i:Int) = new Vec2(interleaved.x(i), interleaved.y(i))
   @inline def update(i:Int, newVec:Vec2) = {
     interleaved.updatex(i, newVec.x)
     interleaved.updatey(i, newVec.y)
