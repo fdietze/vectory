@@ -3,14 +3,14 @@ lazy val vectory = (crossProject.crossType(CrossType.Pure))
     organization := "com.github.fdietze",
     name := "vectory",
     version := "master-SNAPSHOT",
-    crossScalaVersions := Seq("2.10.7", "2.11.12", "2.12.7"),
+    crossScalaVersions := Seq("2.10.7", "2.11.12", "2.12.8"),
     scalaVersion := crossScalaVersions.value.last,
 
 
     resolvers += ("jitpack" at "https://jitpack.io"),
     libraryDependencies ++= (
       "org.scalatest" %%% "scalatest" % "3.0.5" % Test ::
-      "com.github.fdietze.flatland" %%% "flatland" % "6ae9b83" ::
+      "com.github.fdietze.flatland" %%% "flatland" % "6a75afa" ::
       Nil
     ),
 
