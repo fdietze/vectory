@@ -33,6 +33,12 @@ import flatland._
   @inline def angle = Math.atan2(y, x)
 
   @inline def toTuple = (x, y)
+  @inline def toArray: Array[Double] = {
+    val a = new Array[Double](2)
+    a(0) = x
+    a(1) = y
+    a
+  }
 }
 
 object Vec2 {
