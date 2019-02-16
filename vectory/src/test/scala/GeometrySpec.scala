@@ -602,6 +602,61 @@ class GeometrySpec extends FreeSpec with MustMatchers {
         (c2 includes c1) mustBe true
       }
     }
+
+    "Outer tangent of circles (clockwise)" - {
+      "two different circles" in {
+        val c1 = Circle(Vec2(1.5, 2.5), r = 1.5)
+        val c2 = Circle(Vec2(2.5, 2.5), r = 1.5)
+        val t1 = (c1 outerTangentCW c2)
+        val t2 = (c2 outerTangentCW c1)
+        t2 mustEqual Some(Line(Vec2(2.4999999999999996, 1), Vec2(1.4999999999999998, 1)))
+        t1 mustEqual Some(Line(Vec2(1.5, 4), Vec2(2.5, 4)))
+      }
+      "circles, containing each other" in {
+        val c1 = Circle(Vec2(-9, 17), 122)
+        val c2 = Circle(Vec2(-9, 18), 45)
+        val t1 = (c1 outerTangentCW c2)
+        val t2 = (c2 outerTangentCW c1)
+        t1 mustEqual None
+        t2 mustEqual None
+      }
+      "two identical circles" in {
+        val c1 = Circle(Vec2(2.5, 2.5), r = 1.5)
+        val c2 = Circle(Vec2(2.5, 2.5), r = 1.5)
+        val t1 = (c1 outerTangentCW c2)
+        val t2 = (c2 outerTangentCW c1)
+        t1 mustEqual None
+        t2 mustEqual None
+      }
+    }
+
+    "Outer tangent of circles (counter-clockwise)" - {
+      "two different circles" in {
+        val c1 = Circle(Vec2(1.5, 2.5), r = 1.5)
+        val c2 = Circle(Vec2(2.5, 2.5), r = 1.5)
+        val t1 = (c1 outerTangentCCW c2)
+        val t2 = (c2 outerTangentCCW c1)
+        t1 mustEqual Some(Line(Vec2(1.4999999999999998, 1), Vec2(2.4999999999999996, 1)))
+        t2 mustEqual Some(Line(Vec2(2.5, 4), Vec2(1.5, 4)))
+      }
+      "circles, containing each other" in {
+        val c1 = Circle(Vec2(-9, 17), 122)
+        val c2 = Circle(Vec2(-9, 18), 45)
+        val t1 = (c1 outerTangentCCW c2)
+        val t2 = (c2 outerTangentCCW c1)
+        t1 mustEqual None
+        t2 mustEqual None
+      }
+      "two identical circles" in {
+        val c1 = Circle(Vec2(2.5, 2.5), r = 1.5)
+        val c2 = Circle(Vec2(2.5, 2.5), r = 1.5)
+        val t1 = (c1 outerTangentCCW c2)
+        val t2 = (c2 outerTangentCCW c1)
+        t1 mustEqual None
+        t2 mustEqual None
+      }
+    }
+
     "Circle AARect intersection" - {
       "not intersecting" in {
         val c = Circle(Vec2(3, 4), 2)

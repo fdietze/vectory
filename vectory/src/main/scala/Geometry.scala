@@ -111,6 +111,8 @@ final case class Circle(center: Vec2, r: Double) {
   def intersects(that: ConvexPolygonLike) = Algorithms.intersectCircleConvexPolygon(that, this)
   def intersectsMtd(that: ConvexPolygonLike): Option[Vec2] = Algorithms.intersectCircleConvexPolygonMtd(that, this, flip = true)
   def intersect(that: Line): Array[Vec2] = Algorithms.intersectCircleLine(this, that)
+  def outerTangentCW(that: Circle) = Algorithms.circleOuterTangentCW(this, that)
+  def outerTangentCCW(that: Circle) = Algorithms.circleOuterTangentCW(that, this).map(_.reversed)
 
   def includes(that: Circle): Boolean = {
     // https://stackoverflow.com/questions/33490334/check-if-a-circle-is-contained-in-another-circle/33490985#33490985
@@ -345,6 +347,29 @@ object Algorithms {
         Array(line.start + (d * t1), line.start + (d * t2))
       }
     }
+  }
+
+  def circleOuterTangentCW(c1: Circle, c2: Circle): Option[Line] = {
+    if ((c1 includes c2) || (c2 includes c1)) return None
+
+    // outer tangent with corrected atan sign: https://en.wikipedia.org/wiki/Tangent_lines_to_circles#Outer_tangent
+    val x1 = c1.center.x
+    val y1 = c1.center.y
+    val r1 = c1.r
+    val x2 = c2.center.x
+    val y2 = c2.center.y
+    val r2 = c2.r
+
+    val gamma = -Math.atan2(y2 - y1, x2 - x1) // atan2 sets the correct sign, so that all tangents are on the right side of point order
+    val beta = Math.asin((r2 - r1) / Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1)))
+    val alpha = gamma - beta
+
+    val x3 = x1 + r1 * Math.cos(Math.PI * 0.5 - alpha)
+    val y3 = y1 + r1 * Math.sin(Math.PI * 0.5 - alpha)
+    val x4 = x2 + r2 * Math.cos(Math.PI * 0.5 - alpha)
+    val y4 = y2 + r2 * Math.sin(Math.PI * 0.5 - alpha)
+
+    Some(Line(Vec2(x3, y3), Vec2(x4, y4)))
   }
 
   def intersect(poly: ConvexPolygonLike, line: Line): Either[Boolean, Seq[Vec2]] = {
