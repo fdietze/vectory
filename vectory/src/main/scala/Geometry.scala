@@ -111,6 +111,14 @@ final case class Circle(center: Vec2, r: Double) {
   def intersects(that: ConvexPolygonLike) = Algorithms.intersectCircleConvexPolygon(that, this)
   def intersectsMtd(that: ConvexPolygonLike): Option[Vec2] = Algorithms.intersectCircleConvexPolygonMtd(that, this, flip = true)
   def intersect(that: Line): Array[Vec2] = Algorithms.intersectCircleLine(this, that)
+
+  def includes(that: Circle): Boolean = {
+    // https://stackoverflow.com/questions/33490334/check-if-a-circle-is-contained-in-another-circle/33490985#33490985
+    val distanceSq = (this.center - that.center).lengthSq
+    val differenceSq = (this.r - that.r) * (this.r - that.r)
+    (differenceSq >= distanceSq) && (this.r >= that.r)
+  }
+
   def sampleCircumference(n: Int): Vec2Array = {
     val samples = Vec2Array.create(n)
     val step = 2 * Math.PI / n

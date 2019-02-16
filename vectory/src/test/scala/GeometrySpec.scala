@@ -569,6 +569,39 @@ class GeometrySpec extends FreeSpec with MustMatchers {
         i2 mustEqual expected
       }
     }
+
+    "Circle includes other Circle" - {
+      "bigger includes smaller, same center" in {
+        val c1 = Circle(Vec2(1.5, 2.5), r = 2.5)
+        val c2 = Circle(Vec2(1.5, 2.5), r = 1.5)
+        (c1 includes c2) mustBe true
+        (c2 includes c1) mustBe false
+      }
+      "bigger includes smaller, different center" in {
+        val c1 = Circle(Vec2(1.5, 2.5), r = 2.5)
+        val c2 = Circle(Vec2(1.3, 2.4), r = 0.5)
+        (c1 includes c2) mustBe true
+        (c2 includes c1) mustBe false
+      }
+      "bigger includes smaller, almost touching" in {
+        val c1 = Circle(Vec2(51, 25), 36)
+        val c2 = Circle(Vec2(14, -13), 91)
+        (c1 includes c2) mustBe false
+        (c2 includes c1) mustBe true
+      }
+      "overlapping, different center, same radius" in {
+        val c1 = Circle(Vec2(1.5, 2.5), r = 2.5)
+        val c2 = Circle(Vec2(1.3, 2.4), r = 2.5)
+        (c1 includes c2) mustBe false
+        (c2 includes c1) mustBe false
+      }
+      "identical circles" in {
+        val c1 = Circle(Vec2(1.5, 2.5), r = 2.5)
+        val c2 = Circle(Vec2(1.5, 2.5), r = 2.5)
+        (c1 includes c2) mustBe true
+        (c2 includes c1) mustBe true
+      }
+    }
     "Circle AARect intersection" - {
       "not intersecting" in {
         val c = Circle(Vec2(3, 4), 2)
