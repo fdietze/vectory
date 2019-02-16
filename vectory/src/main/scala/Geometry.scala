@@ -93,12 +93,16 @@ final case class Line(
   @inline def x2 = end.x
   @inline def y2 = end.y
 
+  @inline def reversed = new Line(end, start)
+
   @inline def vector = end - start
   @inline def normal = vector.normal
-  @inline def center = (start + end) / 2
+  @inline def center = (start + end) * 0.5
 
   @inline def leftOf(p: Vec2) = (vector cross (p - start)) > 0
   @inline def rightOf(p: Vec2) = (vector cross (p - start)) <= 0
+
+  @inline def apply(t: Double) = start + (vector * t)
 
   def distance(that: Vec2): Double = Algorithms.distancePointLine(that.x, that.y, x1, y1, x2, y2)
   def segmentDistance(that: Vec2): Double = Algorithms.distancePointLineSegment(that.x, that.y, x1, y1, x2, y2)
