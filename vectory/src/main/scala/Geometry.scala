@@ -47,9 +47,10 @@ object Vec2 {
   @inline def apply(v: { def x: Double; def y: Double }) = new Vec2(v.x, v.y)
   @inline def dim(v: { def width: Double; def height: Double }) = new Vec2(v.width, v.height)
 
-  @inline val zero = new Vec2(0, 0)
-  @inline val unitX = new Vec2(1, 0)
-  @inline val unitY = new Vec2(0, 1)
+  @inline def zero = new Vec2(0, 0)
+  @inline def unitX = new Vec2(1, 0)
+  @inline def unitY = new Vec2(0, 1)
+  @inline def unit(angle: Double) = Vec2(Math.cos(angle), Math.sin(angle))
 
   @inline def dot(x1: Double, y1: Double, x2: Double, y2: Double) = x1 * x2 + y1 * y2
   @inline def lengthSq(x: Double, y: Double) = x * x + y * y
