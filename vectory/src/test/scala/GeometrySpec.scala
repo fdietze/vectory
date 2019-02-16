@@ -530,6 +530,45 @@ class GeometrySpec extends FreeSpec with MustMatchers {
       }
     }
 
+    "LineCircleIntersection" - {
+      "No intersection" in {
+        val c = Circle(Vec2(1.5, 2.5), r = 1.5)
+        val l = Line(Vec2(2, 0), Vec2(4, 1))
+        val i1 = (c intersect l)
+        val i2 = (l intersect c)
+        val expected = Array()
+        i1 mustEqual expected
+        i2 mustEqual expected
+      }
+      "One intersection (tangent)" in {
+        val c = Circle(Vec2(1.5, 2.5), r = 1.5)
+        val l = Line(Vec2(5, 1), Vec2(6, 1))
+        val i1 = (c intersect l)
+        val i2 = (l intersect c)
+        val expected = Array(Vec2(1.5, 1))
+        i1 mustEqual expected
+        i2 mustEqual expected
+      }
+      "Two intersections" in {
+        val c = Circle(Vec2(1.5, 2.5), r = 1.5)
+        val l = Line(Vec2(1.5, 5), Vec2(1.5, 2))
+        val i1 = (c intersect l)
+        val i2 = (l intersect c)
+        val expected = Array(Vec2(1.5, 4), Vec2(1.5, 1))
+        i1 mustEqual expected
+        i2 mustEqual expected
+      }
+
+      "Two intersections (different order)" in {
+        val c = Circle(Vec2(1.5, 2.5), r = 1.5)
+        val l = Line(Vec2(1.5, 2), Vec2(1.5, 5))
+        val i1 = (c intersect l)
+        val i2 = (l intersect c)
+        val expected = Array(Vec2(1.5, 1), Vec2(1.5, 4))
+        i1 mustEqual expected
+        i2 mustEqual expected
+      }
+    }
     "Circle AARect intersection" - {
       "not intersecting" in {
         val c = Circle(Vec2(3, 4), 2)

@@ -82,6 +82,7 @@ final case class Line(
   def segmentDistance(that: Vec2): Double = Algorithms.distancePointLineSegment(that.x, that.y, x1, y1, x2, y2)
   def pointProjection(that: Vec2): Vec2 = Algorithms.projectPointOnLine(that.x, that.y, x1, y1, x2, y2)
   def intersect(that: Line): Option[Algorithms.LineIntersection] = Algorithms.intersect(this, that)
+  def intersect(that: Circle): Array[Vec2] = Algorithms.intersectCircleLine(that, this)
   def intersect(r: ConvexPolygonLike): Either[Boolean, Seq[Vec2]] = Algorithms.intersect(r, this)
   def cutBy(r: ConvexPolygonLike): Option[Line] = Algorithms.cutLineByPolyAtStartOrEnd(this, r)
   def clampBy(r: ConvexPolygonLike): Option[Line] = Algorithms.clampLineByPoly(this, r)
@@ -109,6 +110,7 @@ final case class Circle(center: Vec2, r: Double) {
   def intersects(rect: AARect) = Algorithms.intersect(this, rect)
   def intersects(that: ConvexPolygonLike) = Algorithms.intersectCircleConvexPolygon(that, this)
   def intersectsMtd(that: ConvexPolygonLike): Option[Vec2] = Algorithms.intersectCircleConvexPolygonMtd(that, this, flip = true)
+  def intersect(that: Line): Array[Vec2] = Algorithms.intersectCircleLine(this, that)
   def sampleCircumference(n: Int): Vec2Array = {
     val samples = Vec2Array.create(n)
     val step = 2 * Math.PI / n
@@ -308,6 +310,33 @@ object Algorithms {
     val resultOnLine2 = b > 0 && b < 1
     // if line1 and line2 are segments, they intersect if both of the above are true
     return Some(LineIntersection(Vec2(resultX, resultY), resultOnLine1, resultOnLine2))
+  }
+
+  def intersectCircleLine(circle: Circle, line: Line): Array[Vec2] = {
+    // https://stackoverflow.com/questions/1073336/circle-line-segment-collision-detection-algorithm/1084899#1084899
+    // The intersection points are ordered by the distance from line.start
+    val d = line.vector
+    val f = line.start - circle.center
+
+    val a = d dot d
+    val b = (f * 2) dot d
+    val c = (f dot f) - circle.r * circle.r
+
+    val discriminantSq = b * b - 4 * a * c
+    if (discriminantSq < 0) Array.empty[Vec2]
+    else {
+      val discriminant = Math.sqrt(discriminantSq)
+      if (discriminant == 0) {
+        // tangent
+        val t = (-b - discriminant) / (2 * a)
+        Array(line(t))
+      } else {
+        // two intersection points
+        val t1 = (-b - discriminant) / (2 * a)
+        val t2 = (-b + discriminant) / (2 * a)
+        Array(line.start + (d * t1), line.start + (d * t2))
+      }
+    }
   }
 
   def intersect(poly: ConvexPolygonLike, line: Line): Either[Boolean, Seq[Vec2]] = {
