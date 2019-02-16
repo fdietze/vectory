@@ -12,6 +12,8 @@ import collection.breakOut
 
 object ConvexHull2D {
   def apply(in: Iterable[Vec2]): Seq[Vec2] = {
+    if(in.isEmpty) return Nil
+
     val verts: IndexedSeq[Vec2] = in.toIndexedSeq sortWith compare
     val n = verts.size
 
