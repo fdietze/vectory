@@ -262,6 +262,11 @@ class GeometrySpec extends FreeSpec with MustMatchers {
         c.d mustEqual 10
       }
 
+      "sampleCircumference" in {
+        val c = Circle(Vec2(2, 3), 5)
+        c.sampleCircumference(4).toList mustEqual List(Vec2(7.0, 3.0), Vec2(2.0000000000000004, 8.0), Vec2(-3.0, 3.0000000000000004), Vec2(1.9999999999999991, -2.0))
+      }
+
       "intersects with polygon" - {
         "no intersection" in {
           val p = ConvexPolygon(IndexedSeq(Vec2(-3, 1), Vec2(-1, -2), Vec2(2, 2)))

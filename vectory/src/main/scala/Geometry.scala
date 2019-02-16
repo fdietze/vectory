@@ -104,9 +104,22 @@ final case class Circle(center: Vec2, r: Double) {
   @inline def y = center.y
   @inline def d = r * 2
 
+  @inline def circumferencePoint(angle: Double) = center + (Vec2.unit(angle) * r)
+
   def intersects(rect: AARect) = Algorithms.intersect(this, rect)
   def intersects(that: ConvexPolygonLike) = Algorithms.intersectCircleConvexPolygon(that, this)
   def intersectsMtd(that: ConvexPolygonLike): Option[Vec2] = Algorithms.intersectCircleConvexPolygonMtd(that, this, flip = true)
+  def sampleCircumference(n: Int): Vec2Array = {
+    val samples = Vec2Array.create(n)
+    val step = 2 * Math.PI / n
+    var i = 0
+    while (i < n) {
+      val angle = step * i
+      samples(i) = circumferencePoint(angle)
+      i += 1
+    }
+    samples
+  }
 }
 
 sealed abstract class ConvexPolygonLike {
