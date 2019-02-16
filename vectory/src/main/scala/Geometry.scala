@@ -86,7 +86,7 @@ object Vec2Array {
 
 final case class Line(
   start: Vec2,
-  end:   Vec2
+  end: Vec2
 ) {
   @inline def x1 = start.x
   @inline def y1 = start.y
@@ -123,7 +123,7 @@ final case class Line(
 }
 
 object Line {
-  def apply(x1: Double, y1: Double, x2: Double, y2: Double) = new Line(Vec2(x1,y1), Vec2(x2, y2))
+  def apply(x1: Double, y1: Double, x2: Double, y2: Double) = new Line(Vec2(x1, y1), Vec2(x2, y2))
 }
 
 final case class Circle(center: Vec2, r: Double) {
@@ -251,7 +251,7 @@ object Algorithms {
   }
 
   def distancePointLineSegment(x0: Double, y0: Double, x1: Double, y1: Double, x2: Double, y2: Double): Double = {
-    import Math.{min, max}
+    import Math.{ min, max }
     // https://stackoverflow.com/questions/849211/shortest-distance-between-a-point-and-a-line-segment
     // Return minimum distance between line segment vw and point p
     val p = Vec2(x0, y0)
@@ -312,7 +312,7 @@ object Algorithms {
 
     val denominator = (line2Dy * line1Dx) - (line2Dx * line1Dy)
 
-    if (denominator == 0) return None
+    if (denominator == 0) return None // lines are parallel
 
     val startDx = line1.start.x - line2.start.x
     val startDy = line1.start.y - line2.start.y
@@ -402,23 +402,11 @@ object Algorithms {
   }
 
   def intersect(circle: Circle, rect: AARect): Boolean = {
-    // https://stackoverflow.com/questions/401847/circle-rectangle-collision-detection-intersection/402010#402010
-    // val circleDistance = (circle.center - rect.center).abs
-
-    //  if (circleDistance.x > (rect.width/2 + circle.r)) return false
-    //  if (circleDistance.y > (rect.height/2 + circle.r)) return false
-
-    //  if (circleDistance.x <= (rect.width/2)) return true
-    //  if (circleDistance.y <= (rect.height/2)) return true
-
-    //  val cornerDistance_sq = (circleDistance - rect.size / 2).lengthSq
-
-    //  return cornerDistance_sq <= circle.r*circle.r
     intersectCircleAARect(circle.center.x, circle.center.y, circle.r, rect.center.x, rect.center.y, rect.size.width, rect.size.height)
   }
 
   def intersectCircleAARect(cx: Double, cy: Double, cr: Double, rcx: Double, rcy: Double, rw: Double, rh: Double): Boolean = {
-
+    // https://stackoverflow.com/questions/401847/circle-rectangle-collision-detection-intersection/402010#402010
     val circleDistanceX = Math.abs(cx - rcx)
     val circleDistanceY = Math.abs(cy - rcy)
 
