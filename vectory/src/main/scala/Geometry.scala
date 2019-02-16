@@ -161,7 +161,7 @@ final case class Circle(center: Vec2, r: Double) {
 }
 
 sealed abstract class ConvexPolygonLike {
-  def verticesCCW: IndexedSeq[Vec2] // in counter clockwise order
+  def verticesCCW: Vec2Array // in counter clockwise order
   lazy val edges: IndexedSeq[Line] = Algorithms.polygonCornersToEdges(verticesCCW)
 
   // axis aligned bounding box
@@ -176,37 +176,21 @@ sealed abstract class ConvexPolygonLike {
   def intersectsMtd(that: Circle): Option[Vec2] = Algorithms.intersectCircleConvexPolygonMtd(this, that, flip = false)
 }
 
-final case class ConvexPolygon(verticesCCW: IndexedSeq[Vec2]) extends ConvexPolygonLike
+final case class ConvexPolygon(verticesCCW: Vec2Array) extends ConvexPolygonLike
 
-sealed abstract class Rect extends ConvexPolygonLike {
-  def center: Vec2
-  @inline def x = center.x
-  @inline def y = center.y
+final case class RotatedRect(center: Vec2, size: Vec2, angle: Double) extends ConvexPolygonLike {
+  import Math.{ sin, cos }
 
-  def size: Vec2
   @inline def width = size.x
   @inline def height = size.y
 
-  def angle: Double
-
-  def minCorner: Vec2
-  def maxCorner: Vec2
-}
-
-object Rect {
-  def apply(center: Vec2, size: Vec2, angle: Double = 0): Rect = if (angle == 0) AARect(center, size) else RotatedRect(center, size, angle)
-}
-
-final case class RotatedRect(center: Vec2, size: Vec2, angle: Double) extends Rect {
-  import Math.{sin, cos}
-
-  lazy val toRight = Vec2(cos(angle), sin(angle)) * (width / 2)
-  lazy val toTop = Vec2(-sin(angle), cos(angle)) * (height / 2)
+  lazy val toRight = Vec2(cos(angle), sin(angle)) * (width * 0.5)
+  lazy val toTop = Vec2(-sin(angle), cos(angle)) * (height * 0.5)
 
   lazy val minCorner = center - toRight - toTop
   lazy val maxCorner = center + toRight + toTop
 
-  lazy val verticesCCW = Array(
+  lazy val verticesCCW = Vec2Array(
     minCorner,
     center + toRight - toTop,
     maxCorner,
@@ -214,21 +198,29 @@ final case class RotatedRect(center: Vec2, size: Vec2, angle: Double) extends Re
   )
 }
 
-final case class AARect(center: Vec2, size: Vec2) extends Rect {
-  override def angle = 0
+object AARect {
+  def fromCenter(center:Vec2, size:Vec2) = {
+    val halfSize = size * 0.5
+    val minCorner = center - halfSize
+    val maxCorner = center + halfSize
+    new AARect(minCorner, maxCorner)
+  }
+}
 
-  lazy val minCorner = center - size / 2
-  lazy val maxCorner = center + size / 2
-
+final case class AARect(minCorner: Vec2, maxCorner: Vec2) extends ConvexPolygonLike {
   override def aabb = this
 
   override def includes(v: Vec2): Boolean = v.x > minCorner.x && v.y > minCorner.y && v.x < maxCorner.x && v.y < maxCorner.y
 
-  lazy val verticesCCW = Array(
+  @inline def size = maxCorner - minCorner
+  @inline def width = size.x
+  @inline def height = size.y
+  @inline def center = (maxCorner + minCorner) * 0.5
+  lazy val verticesCCW = Vec2Array(
     minCorner,
-    minCorner + Vec2(size.x, 0),
+    minCorner + Vec2(width, 0),
     maxCorner,
-    minCorner + Vec2(0, size.y)
+    minCorner + Vec2(0, height)
   )
 
   //TODO: optimized AARect vs AARect collision detection and repsonse only looking at two axes
@@ -302,9 +294,7 @@ object Algorithms {
       else if (y > yMax) yMax = y
       i += 1
     }
-    val width = xMax - xMin
-    val height = yMax - yMin
-    AARect(Vec2(xMin + width * 0.5, yMin + height * 0.5), Vec2(width, height))
+    AARect(Vec2(xMin, yMin), Vec2(xMax, yMax))
   }
 
   final case class LineIntersection(pos: Vec2, onLine1: Boolean, onLine2: Boolean)
