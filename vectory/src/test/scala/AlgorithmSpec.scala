@@ -2,7 +2,7 @@ package vectory
 
 import org.scalatest._
 
-class AlgorithmSpec extends FreeSpec with MustMatchers {
+class GeometrySpec extends FreeSpec with MustMatchers {
   "LineIntersection" - {
     "Segments" in {
       val a = Line(Vec2(1, 3), Vec2(4, 1))

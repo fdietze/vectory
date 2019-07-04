@@ -1,7 +1,5 @@
 package vectory
 
-import collection.breakOut
-
 //===================================================================
 // chainHull_2D(): Andrew's monotone chain 2D convex hull algorithm
 //     Input:  P[] = an array of 2D points
@@ -41,7 +39,7 @@ object ConvexHull2D {
       // Compute the lower hull on the stack H
       stack ::= verts(minmin)
 
-      for (i ← minmax + 1 to maxmin) {
+      for (i <- minmax + 1 to maxmin) {
         // the lower line joins P[minmin] with P[maxmin]
         // ignore P[i] above or on the lower line
         if (isLeft(verts(minmin), verts(maxmin), verts(i)) < 0 || i == maxmin) {
@@ -57,7 +55,7 @@ object ConvexHull2D {
       val bottom = stack.size
 
       // Next, compute the upper hull on the stack H above the bottom hull
-      for (i ← (maxmin - 1).to(minmax, -1)) {
+      for (i <- (maxmin - 1).to(minmax, -1)) {
         // the upper line joins P[maxmax] with P[minmax]
         if (isLeft(verts(maxmax), verts(minmax), verts(i)) < 0 || i == minmax) {
           // ignore P[i] below or on the upper line

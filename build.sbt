@@ -3,14 +3,14 @@ lazy val vectory = (crossProject.crossType(CrossType.Pure))
     organization := "com.github.fdietze",
     name := "vectory",
     version := "master-SNAPSHOT",
-    crossScalaVersions := Seq("2.10.7", "2.11.12", "2.12.8"),
+    crossScalaVersions := Seq("2.11.12", "2.12.8", "2.13.0"),
     scalaVersion := crossScalaVersions.value.last,
 
 
     resolvers += ("jitpack" at "https://jitpack.io"),
     libraryDependencies ++= (
-      "org.scalatest" %%% "scalatest" % "3.0.5" % Test ::
-      "com.github.fdietze.flatland" %%% "flatland" % "3217299" ::
+      "org.scalatest" %%% "scalatest" % "3.0.8" % Test ::
+      "com.github.fdietze.flatland" %%% "flatland" % "71b9256" ::
       Nil
     ),
 
@@ -28,14 +28,7 @@ lazy val vectory = (crossProject.crossType(CrossType.Pure))
     "-feature" ::
     "-language:_" ::
     "-Xcheckinit" ::
-    "-Xfuture" ::
-    "-Xlint:-unused" ::
-    "-Ypartial-unification" ::
-    "-Yno-adapted-args" ::
-    "-Ywarn-infer-any" ::
     "-Ywarn-value-discard" ::
-    "-Ywarn-nullary-override" ::
-    "-Ywarn-nullary-unit" ::
     Nil,
   )
   .jvmSettings(
@@ -51,3 +44,5 @@ lazy val vectory = (crossProject.crossType(CrossType.Pure))
 
 lazy val jvm = vectory.jvm
 lazy val js = vectory.js
+
+Global / onChangedBuildSource := ReloadOnSourceChanges

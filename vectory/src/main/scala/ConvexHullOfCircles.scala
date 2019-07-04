@@ -1,6 +1,5 @@
 package vectory
 
-import collection.breakOut
 import collection.mutable
 
 object ConvexHullOfCircles {
@@ -194,7 +193,7 @@ object ConvexHullOfCircles2 {
     def circles = arcs.arcs.map(_.arc.circle)
   }
 
-  def hull(circles: Seq[Circle]): Seq[Circle] = {
+  def hull(circles: Seq[Circle]): collection.Seq[Circle] = {
     val sortedCircles = circles.sortBy(c => -c.r) // sort by radius, biggest first
     val q: Vec2 = sortedCircles.head.center
     val ch = new CH(q)
