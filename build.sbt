@@ -27,7 +27,7 @@ lazy val vectory = (crossProject.crossType(CrossType.Pure))
     "-explaintypes" ::
     "-feature" ::
     "-language:_" ::
-    "-Xcheckinit" ::
+    /* "-Xcheckinit" :: */
     "-Ywarn-value-discard" ::
     Nil,
   )
