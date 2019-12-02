@@ -1,8 +1,10 @@
 package vectory
 
 import org.scalatest._
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.must.Matchers
 
-class AARectSpec extends FreeSpec with MustMatchers {
+class AARectSpec extends AnyFreeSpec with Matchers {
   "constructor" in {
     val r = AARect.fromCenter(Vec2(11, 5), Vec2(8, 4))
     r.center mustEqual Vec2(11, 5)

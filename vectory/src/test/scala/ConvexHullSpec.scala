@@ -1,8 +1,10 @@
 package vectory
 
 import org.scalatest._
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.must.Matchers
 
-class ConvexHullSpec extends FreeSpec with MustMatchers {
+class ConvexHullSpec extends AnyFreeSpec with Matchers {
   "test1" in {
     val data = List(Vec2(0, 3), Vec2(2, 3), Vec2(3, 1), Vec2(2, 1))
     val dataSorted = List(Vec2(0, 3), Vec2(2, 1), Vec2(2, 3), Vec2(3, 1))

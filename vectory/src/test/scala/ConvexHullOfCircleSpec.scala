@@ -1,10 +1,12 @@
 package vectory
 
 import org.scalatest._
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.must.Matchers
 
 // online plotting tool: https://www.math10.com/en/geometry/geogebra/geogebra.html
 
-class ConvexHullOfCircleSpec extends FreeSpec with MustMatchers {
+class ConvexHullOfCircleSpec extends AnyFreeSpec with Matchers {
   "empty" in {
     val circles = List.empty[Circle]
     val hull = ConvexHullOfCircles(circles)

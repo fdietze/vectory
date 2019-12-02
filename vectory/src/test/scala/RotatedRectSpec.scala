@@ -1,8 +1,10 @@
 package vectory
 
 import org.scalatest._
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.must.Matchers
 
-class RotatedRectSpec extends FreeSpec with MustMatchers {
+class RotatedRectSpec extends AnyFreeSpec with Matchers {
   "constructor" in {
     val r = RotatedRect(Vec2(11, 5), Vec2(8, 4), Math.PI / 4)
     r.center mustEqual Vec2(11, 5)

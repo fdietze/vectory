@@ -1,8 +1,10 @@
 package vectory
 
 import org.scalatest._
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.must.Matchers
 
-class Vec2Spec extends FreeSpec with MustMatchers {
+class Vec2Spec extends AnyFreeSpec with Matchers {
   "constructor" in {
     val v = Vec2(5, 7)
     v.x mustEqual 5

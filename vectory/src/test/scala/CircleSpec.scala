@@ -1,8 +1,10 @@
 package vectory
 
 import org.scalatest._
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.must.Matchers
 
-class CircleSpec extends FreeSpec with MustMatchers {
+class CircleSpec extends AnyFreeSpec with Matchers {
   "constructor" in {
     val c = Circle(Vec2(2, 3), 5)
     c.center mustEqual Vec2(2, 3)
