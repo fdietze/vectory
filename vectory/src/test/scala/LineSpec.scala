@@ -1,8 +1,10 @@
 package vectory
 
 import org.scalatest._
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.must.Matchers
 
-class LineSpec extends FreeSpec with MustMatchers {
+class LineSpec extends AnyFreeSpec with Matchers {
   "constructor" in {
     val l = Line(Vec2(7, 3), Vec2(8, 4))
     l.start mustEqual Vec2(7, 3)

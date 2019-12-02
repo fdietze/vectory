@@ -1,8 +1,10 @@
 package vectory
 
 import org.scalatest._
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.must.Matchers
 
-class GeometrySpec extends FreeSpec with MustMatchers {
+class GeometrySpec extends AnyFreeSpec with Matchers {
   "LineIntersection" - {
     "Segments" in {
       val a = Line(Vec2(1, 3), Vec2(4, 1))
