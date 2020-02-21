@@ -9,7 +9,7 @@ lazy val vectory = (crossProject.crossType(CrossType.Pure))
 
     resolvers += ("jitpack" at "https://jitpack.io"),
     libraryDependencies ++= (
-      "org.scalatest" %%% "scalatest" % "3.1.0" % Test ::
+      "org.scalatest" %%% "scalatest" % "3.1.1" % Test ::
       "com.github.fdietze.flatland" %%% "flatland" % "7868da7" ::
       Nil
     ),
