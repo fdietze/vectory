@@ -1,4 +1,5 @@
-lazy val vectory = (crossProject.crossType(CrossType.Pure))
+lazy val vectory = crossProject(JVMPlatform, JSPlatform)
+  .crossType(CrossType.Pure)
   .settings(
     organization := "com.github.fdietze",
     name := "vectory",
@@ -9,8 +10,8 @@ lazy val vectory = (crossProject.crossType(CrossType.Pure))
 
     resolvers += ("jitpack" at "https://jitpack.io"),
     libraryDependencies ++= (
-      "org.scalatest" %%% "scalatest" % "3.1.2" % Test ::
-      "com.github.fdietze.flatland" %%% "flatland" % "7868da7" ::
+      "org.scalatest" %%% "scalatest" % "3.1.1" % Test ::
+      "com.github.fdietze.flatland" %%% "flatland" % "970299f" ::
       Nil
     ),
 
@@ -32,7 +33,7 @@ lazy val vectory = (crossProject.crossType(CrossType.Pure))
     Nil,
   )
   .jvmSettings(
-    libraryDependencies += "org.scala-js" %% "scalajs-stubs" % scalaJSVersion % "provided"
+    libraryDependencies += "org.scala-js" %% "scalajs-stubs" % "1.0.0" % "provided"
   )
   .jsSettings(
     scalacOptions += {
