@@ -3,15 +3,20 @@
 A 2D geometry library in Scala.
 
 ## Dependency
+
 For Scala and ScalaJS:
+
+With [JitPack](https://jitpack.io), it is common to point to a specific commit to make your builds reproducible:
+
 ```scala
-libraryDependencies += "com.github.fdietze" % "vectory" % "master-SNAPSHOT"
+libraryDependencies += "com.github.fdietze.vectory" %% "vectory" % "76af304"
 ```
 
-When using [JitPack](https://jitpack.io), it is often more useful to point to a specific commit, to make your builds reproducible:
+In ammonite you can use jitpack with a special resolver like this:
 
 ```scala
-libraryDependencies += "com.github.fdietze" % "vectory" % "d0e70f4"
+import $repo.`https://jitpack.io`
+import $ivy.`com.github.fdietze.vectory::vectory:76af304`
 ```
 
 ## Example
