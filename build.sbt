@@ -4,7 +4,7 @@ lazy val vectory = crossProject(JVMPlatform, JSPlatform)
     organization := "com.github.fdietze",
     name := "vectory",
     version := "master-SNAPSHOT",
-    crossScalaVersions := Seq("2.11.12", "2.12.13", "2.13.6"),
+    crossScalaVersions := Seq("2.11.12", "2.12.14", "2.13.6"),
     scalaVersion := crossScalaVersions.value.last,
 
 
