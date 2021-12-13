@@ -40,8 +40,6 @@ import flatland._
 object Vec2 {
   @inline def apply(tuple: (Double, Double)) = new Vec2(tuple._1, tuple._2)
   @inline def apply(x: Double) = new Vec2(x, x)
-  @inline def apply(v: { def x: Double; def y: Double }) = new Vec2(v.x, v.y)
-  @inline def dim(v: { def width: Double; def height: Double }) = new Vec2(v.width, v.height)
 
   @inline def zero = new Vec2(0, 0)
   @inline def unitX = new Vec2(1, 0)

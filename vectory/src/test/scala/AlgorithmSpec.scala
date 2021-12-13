@@ -65,7 +65,7 @@ class GeometrySpec extends AnyFreeSpec with Matchers {
       val l = Line(Vec2(2, 0), Vec2(4, 1))
       val i1 = (c intersect l)
       val i2 = (l intersect c)
-      val expected = Array()
+      val expected = Array[Int]()
       i1 mustEqual expected
       i2 mustEqual expected
     }

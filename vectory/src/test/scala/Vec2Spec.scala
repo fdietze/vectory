@@ -17,16 +17,6 @@ class Vec2Spec extends AnyFreeSpec with Matchers {
     v.x mustEqual 5
     v.y mustEqual 5
   }
-  "factory from structural type: x, y" in {
-    val v = Vec2(new { val x = 5.0; val y = 7.0 })
-    v.x mustEqual 5
-    v.y mustEqual 7
-  }
-  "factory from structural type: width, height" in {
-    val v = Vec2.dim(new { val width = 5.0; val height = 7.0 })
-    v.x mustEqual 5
-    v.y mustEqual 7
-  }
   "from tuple" in {
     val v = Vec2((5.0, 7.0))
     v.x mustEqual 5
