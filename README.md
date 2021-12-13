@@ -1,25 +1,27 @@
 # vectory
 
-A 2D geometry library in Scala.
+A 2D geometry library for Scala.
 
 ## Dependency
-
-For Scala and ScalaJS:
 
 With [JitPack](https://jitpack.io), it is common to point to a specific commit to make your builds reproducible:
 
 ```scala
-libraryDependencies += "com.github.fdietze.vectory" %% "vectory" % "76af304"
+resolvers += ("jitpack" at "https://jitpack.io")
+libraryDependencies += "com.github.fdietze.vectory" %% "vectory" % "b349c76"
+
+// With ScalaJS:
+libraryDependencies += "com.github.fdietze.vectory" %%% "vectory" % "b349c76"
 ```
 
-In ammonite you can use jitpack with a special resolver like this:
+To use it in Ammonite:
 
 ```scala
 import $repo.`https://jitpack.io`
-import $ivy.`com.github.fdietze.vectory::vectory:76af304`
+import $ivy.`com.github.fdietze.vectory::vectory:b349c76`, vectory._
 ```
 
-## Example
+## Examples
 
 ```scala
 import vectory._
