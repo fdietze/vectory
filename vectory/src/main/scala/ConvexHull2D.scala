@@ -10,19 +10,19 @@ package vectory
 
 object ConvexHull2D {
   def apply(in: Iterable[Vec2]): Seq[Vec2] = {
-    if(in.isEmpty) return Nil
+    if (in.isEmpty) return Nil
 
     val verts: IndexedSeq[Vec2] = in.toIndexedSeq sortWith compare
-    val n = verts.size
+    val n                       = verts.size
 
     val minmin = 0
-    val xmin = verts(minmin).x
+    val xmin   = verts(minmin).x
     var minmax = 0
     while (minmax < n - 1 && verts(minmax + 1).x == xmin)
       minmax += 1
 
     val maxmax = n - 1
-    val xmax = verts(maxmax).x
+    val xmax   = verts(maxmax).x
     var maxmin = n - 1
     while (maxmin > 1 && verts(maxmin - 1).x == xmax) {
       maxmin -= 1
@@ -30,7 +30,7 @@ object ConvexHull2D {
 
     var stack: List[Vec2] = Nil
 
-    if (minmax == n - 1) { // degenerate case: all x-coords == xmin
+    if (minmax == n - 1) {      // degenerate case: all x-coords == xmin
       stack ::= verts(minmin)
       if (verts(minmin).y != verts(minmax).y)
         stack ::= verts(minmax) // a nontrivial segment

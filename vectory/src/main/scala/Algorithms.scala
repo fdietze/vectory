@@ -8,13 +8,12 @@ import flatland._
 // for example Vec2.normalized
 // https://en.wikipedia.org/wiki/Fast_inverse_square_root
 
-
 object Algorithms {
   def polygonCornersToEdges(corners: IndexedSeq[Vec2]): IndexedSeq[Line] = {
-    val n = corners.size
+    val n     = corners.size
     val edges = new Array[Line](n)
-    var i = 0
-    var last = corners(n - 1)
+    var i     = 0
+    var last  = corners(n - 1)
     while (i < n) {
       val current = corners(i)
       edges(i) = Line(last, current)
@@ -27,23 +26,25 @@ object Algorithms {
   def distancePointLine(x0: Double, y0: Double, x1: Double, y1: Double, x2: Double, y2: Double): Double = {
     // Point: x0, y0
     // Line: x1, y1 --- x2, y2
-    Math.abs((y2 - y1) * x0 - (x2 - x1) * y0 + x2 * y1 - y2 * x1) / Math.sqrt((y2 - y1) * (y2 - y1) + (x2 - x1) * (x2 - x1))
+    Math.abs((y2 - y1) * x0 - (x2 - x1) * y0 + x2 * y1 - y2 * x1) / Math.sqrt(
+      (y2 - y1) * (y2 - y1) + (x2 - x1) * (x2 - x1),
+    )
   }
 
   def distancePointLineSegment(x0: Double, y0: Double, x1: Double, y1: Double, x2: Double, y2: Double): Double = {
-    import Math.{ min, max }
+    import Math.{min, max}
     // https://stackoverflow.com/questions/849211/shortest-distance-between-a-point-and-a-line-segment
     // Return minimum distance between line segment vw and point p
-    val p = Vec2(x0, y0)
-    val v = Vec2(x1, y1)
-    val w = Vec2(x2, y2)
+    val p  = Vec2(x0, y0)
+    val v  = Vec2(x1, y1)
+    val w  = Vec2(x2, y2)
     val l2 = Line(v, w).lengthSq // i.e. |w-v|^2 -  avoid a sqrt
     if (l2 == 0.0) return Line(p, v).length // v == w case
     // Consider the line extending the segment, parameterized as v + t (w - v).
     // We find projection of point p onto the line.
     // It falls where t = [(p-v) . (w-v)] / |w-v|^2
     // We clamp t from [0,1] to handle points outside the segment vw.
-    val t = max(0, min(1, ((p - v) dot (w - v)) / l2))
+    val t          = max(0, min(1, ((p - v) dot (w - v)) / l2))
     val projection = v + (w - v) * t // Projection falls on the segment
     return Line(p, projection).length
   }
@@ -58,16 +59,16 @@ object Algorithms {
 
   def axisAlignedBoundingBox(vertices: IndexedSeq[Vec2]) = {
     val first = vertices(0)
-    var xMin = first.x
-    var xMax = xMin
-    var yMin = first.y
-    var yMax = yMin
-    var i = 1
-    val n = vertices.size
+    var xMin  = first.x
+    var xMax  = xMin
+    var yMin  = first.y
+    var yMax  = yMin
+    var i     = 1
+    val n     = vertices.size
     while (i < n) {
       val vertex = vertices(i)
-      val x = vertex.x
-      val y = vertex.y
+      val x      = vertex.x
+      val y      = vertex.y
       if (x < xMin) xMin = x
       else if (x > xMax) xMax = x
       if (y < yMin) yMin = y
@@ -99,17 +100,17 @@ object Algorithms {
 
     val numerator1 = (line2Dx * startDy) - (line2Dy * startDx)
     val numerator2 = (line1Dx * startDy) - (line1Dy * startDx)
-    val a = numerator1 / denominator
-    val b = numerator2 / denominator
+    val a          = numerator1 / denominator
+    val b          = numerator2 / denominator
 
     // if we cast these lines infinitely in both directions, they intersect here:
-    val resultX = line1.start.x + (a * (line1Dx))
-    val resultY = line1.start.y + (a * (line1Dy))
+    val resultX       = line1.start.x + (a * (line1Dx))
+    val resultY       = line1.start.y + (a * (line1Dy))
     /*
     // it is worth noting that this should be the same as:
     x = line2StartX + (b * (line2EndX - line2StartX))
     y = line2StartX + (b * (line2EndY - line2StartY))
-    */
+     */
     // if line1 is a segment and line2 is infinite, they intersect if:
     val resultOnLine1 = a > 0 && a < 1
     // if line2 is a segment and line1 is infinite, they intersect if:
@@ -156,8 +157,12 @@ object Algorithms {
     val y2 = c2.center.y
     val r2 = c2.r
 
-    val gamma = -Math.atan2(y2 - y1, x2 - x1) // atan2 sets the correct sign, so that all tangents are on the right side of point order
-    val beta = Math.asin((r2 - r1) / Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1)))
+    val gamma =
+      -Math.atan2(
+        y2 - y1,
+        x2 - x1,
+      ) // atan2 sets the correct sign, so that all tangents are on the right side of point order
+    val beta  = Math.asin((r2 - r1) / Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1)))
     val alpha = gamma - beta
 
     val x3 = x1 + r1 * Math.cos(Math.PI * 0.5 - alpha)
@@ -182,10 +187,26 @@ object Algorithms {
   }
 
   def intersect(circle: Circle, rect: AARect): Boolean = {
-    intersectCircleAARect(circle.center.x, circle.center.y, circle.r, rect.center.x, rect.center.y, rect.size.width, rect.size.height)
+    intersectCircleAARect(
+      circle.center.x,
+      circle.center.y,
+      circle.r,
+      rect.center.x,
+      rect.center.y,
+      rect.size.width,
+      rect.size.height,
+    )
   }
 
-  def intersectCircleAARect(cx: Double, cy: Double, cr: Double, rcx: Double, rcy: Double, rw: Double, rh: Double): Boolean = {
+  def intersectCircleAARect(
+      cx: Double,
+      cy: Double,
+      cr: Double,
+      rcx: Double,
+      rcy: Double,
+      rw: Double,
+      rh: Double,
+  ): Boolean = {
     // https://stackoverflow.com/questions/401847/circle-rectangle-collision-detection-intersection/402010#402010
     val circleDistanceX = Math.abs(cx - rcx)
     val circleDistanceY = Math.abs(cy - rcy)
@@ -199,8 +220,8 @@ object Algorithms {
     if (circleDistanceX <= (rwh)) return true
     if (circleDistanceY <= (rhh)) return true
 
-    val cornerDistanceX = circleDistanceX - rwh
-    val cornerDistanceY = circleDistanceY - rhh
+    val cornerDistanceX   = circleDistanceX - rwh
+    val cornerDistanceY   = circleDistanceY - rhh
     val cornerDistance_sq = cornerDistanceX * cornerDistanceX + cornerDistanceY * cornerDistanceY
 
     return cornerDistance_sq <= cr * cr
@@ -225,19 +246,19 @@ object Algorithms {
     }
 
     val verts = p.verticesCCW
-    val n = verts.size
+    val n     = verts.size
 
     val circleX = c.x
     val circleY = c.y
 
     var testDistance = Double.MaxValue
-    var distance = 0.0
-    var closestX = 0.0
-    var closestY = 0.0
-    var overlap = 0.0
-    var unitVectorX = 0.0
-    var unitVectorY = 0.0
-    var i = 0
+    var distance     = 0.0
+    var closestX     = 0.0
+    var closestY     = 0.0
+    var overlap      = 0.0
+    var unitVectorX  = 0.0
+    var unitVectorY  = 0.0
+    var i            = 0
     while (i < n) {
       distance = Vec2.lengthSq(circleX - verts(i).x, circleY - verts(i).y)
 
@@ -255,7 +276,7 @@ object Algorithms {
     normalAxisX = Vec2.normalize(normAxisLen, normalAxisX)
     normalAxisY = Vec2.normalize(normAxisLen, normalAxisY)
 
-    //project all its points, 0 outside the loop
+    // project all its points, 0 outside the loop
     var test = 0.0
     var min1 = Vec2.dot(normalAxisX, normalAxisY, verts(0).x, verts(0).y)
     var max1 = min1
@@ -269,8 +290,8 @@ object Algorithms {
     }
 
     // project the circle
-    var max2 = c.r
-    var min2 = -c.r
+    var max2   = c.r
+    var min2   = -c.r
     var offset = Vec2.dot(normalAxisX, normalAxisY, -circleX, -circleY)
 
     min1 += offset
@@ -279,7 +300,7 @@ object Algorithms {
     var test1 = min1 - max2
     var test2 = min2 - max1
 
-    //if either test is greater than 0, there is a gap, we can give up now.
+    // if either test is greater than 0, there is a gap, we can give up now.
     if (test1 > 0 || test2 > 0) return None
 
     // circle distance check
@@ -303,9 +324,9 @@ object Algorithms {
 
       // project the polygon(again? yes, circles vs. polygon require more testing...)
       min1 = Vec2.dot(normalAxisX, normalAxisY, verts(0).x, verts(0).y)
-      max1 = min1 //set max and min
+      max1 = min1 // set max and min
 
-      //project all the other points(see, cirlces v. polygons use lots of this...)
+      // project all the other points(see, cirlces v. polygons use lots of this...)
       j = 0
       while (j < n) {
         test = Vec2.dot(normalAxisX, normalAxisY, verts(j).x, verts(j).y)
@@ -315,10 +336,10 @@ object Algorithms {
       }
 
       // project the circle(again)
-      max2 = c.r //max is radius
-      min2 = -c.r //min is negative radius
+      max2 = c.r  // max is radius
+      min2 = -c.r // min is negative radius
 
-      //offset points
+      // offset points
       offset = Vec2.dot(normalAxisX, normalAxisY, -circleX, -circleY)
       min1 += offset
       max1 += offset
@@ -327,7 +348,7 @@ object Algorithms {
       test1 = min1 - max2
       test2 = min2 - max1
 
-      //failed.. quit now
+      // failed.. quit now
       if (test1 > 0 || test2 > 0) {
         return None
       }
@@ -345,7 +366,7 @@ object Algorithms {
       i += 1
     }
 
-    //if you made it here, there is a collision!!!!!
+    // if you made it here, there is a collision!!!!!
 
     // shape1 = if (flip) polygon else c
     // shape2 = if (flip) c else polygon
@@ -363,8 +384,8 @@ object Algorithms {
     def projectionExtents(axis: Vec2, vertices: IndexedSeq[Vec2]): (Double, Double) = {
       var aMin = axis dot vertices(0)
       var aMax = aMin
-      var i = 1
-      val n = vertices.size
+      var i    = 1
+      val n    = vertices.size
       while (i < n) {
         val d = axis dot vertices(i)
         if (d < aMin) aMin = d
@@ -374,21 +395,21 @@ object Algorithms {
       (aMin, aMax)
     }
 
-    var shortestAxis: Vec2 = null
+    var shortestAxis: Vec2           = null
     var shortestAxisLengthSq: Double = Double.MaxValue
 
     def separatingAxis(edge: Line, a: ConvexPolygonLike, b: ConvexPolygonLike): Boolean = {
-      val axis = edge.normal
+      val axis         = edge.normal
       val (aMin, aMax) = projectionExtents(axis, a.verticesCCW)
       val (bMin, bMax) = projectionExtents(axis, b.verticesCCW)
       if (aMax < bMin || bMax < aMin) return true
 
-      val d0 = aMax - bMin
-      val d1 = bMax - aMin
-      var flip = 1
+      val d0    = aMax - bMin
+      val d1    = bMax - aMin
+      var flip  = 1
       val depth = if (d0 < d1) d0 else { flip = -1; d1 }
 
-      val pushVector = axis * (depth * flip / axis.lengthSq)
+      val pushVector         = axis * (depth * flip / axis.lengthSq)
       val pushVectorLengthSq = pushVector.lengthSq
       if (pushVectorLengthSq < shortestAxisLengthSq) {
         shortestAxis = pushVector
@@ -399,8 +420,8 @@ object Algorithms {
     }
 
     val noSeparatingAxisFound = {
-      a.edges.forall (!separatingAxis(_, a, b)) &&
-        b.edges.forall (!separatingAxis(_, a, b))
+      a.edges.forall(!separatingAxis(_, a, b)) &&
+      b.edges.forall(!separatingAxis(_, a, b))
     }
 
     if (noSeparatingAxisFound) {
@@ -419,8 +440,8 @@ object Algorithms {
     // If there are two intersections the resulting line
     // can be wrong
     intersect(poly, line) match {
-      case Left(true)  => None // line inside
-      case Left(false) => Some(line) // line outside
+      case Left(true)           => None       // line inside
+      case Left(false)          => Some(line) // line outside
       case Right(intersections) =>
         // with the assumption that the poly covers one line end,
         // we have exactly one intersection
@@ -433,12 +454,12 @@ object Algorithms {
 
   def clampLineByPoly(line: Line, poly: ConvexPolygonLike): Option[Line] = {
     (poly includes line.start, poly includes line.end) match {
-      case (true, true)  => Some(line)
-      case (true, false) => Some(Line(line.start, intersect(poly, line).right.get.head))
-      case (false, true) => Some(Line(intersect(poly, line).right.get.head, line.end))
+      case (true, true)   => Some(line)
+      case (true, false)  => Some(Line(line.start, intersect(poly, line).right.get.head))
+      case (false, true)  => Some(Line(intersect(poly, line).right.get.head, line.end))
       case (false, false) =>
         intersect(poly, line) match {
-          case Left(_) => None
+          case Left(_)              => None
           case Right(intersections) =>
             // polygon is convex, line endpoints lie outside,
             // so we have exactly two intersections
@@ -450,4 +471,3 @@ object Algorithms {
 
   def convexHull(points: Iterable[Vec2]) = ConvexHull2D(points)
 }
-

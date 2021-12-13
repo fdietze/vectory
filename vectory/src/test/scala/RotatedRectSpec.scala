@@ -20,7 +20,7 @@ class RotatedRectSpec extends AnyFreeSpec with Matchers {
   }
 
   "minMaxCorner 2" in {
-    val r = RotatedRect(Vec2(8, 9.5), Vec2(20, 5), Math.atan(4.0 / 3.0))
+    val r          = RotatedRect(Vec2(8, 9.5), Vec2(20, 5), Math.atan(4.0 / 3.0))
     val roundedMin = Vec2(Math.round(r.minCorner.x), Math.round(r.minCorner.y))
     val roundedMax = Vec2(Math.round(r.maxCorner.x), Math.round(r.maxCorner.y))
     roundedMin mustEqual Vec2(4, 0)
@@ -28,23 +28,25 @@ class RotatedRectSpec extends AnyFreeSpec with Matchers {
   }
 
   "verticesCCW" in {
-    val r = RotatedRect(Vec2(8, 9.5), Vec2(20, 5), Math.atan(4.0 / 3.0))
+    val r       = RotatedRect(Vec2(8, 9.5), Vec2(20, 5), Math.atan(4.0 / 3.0))
     val rounded = r.verticesCCW.map(v => Vec2(Math.round(v.x), Math.round(v.y)))
     rounded.toList mustEqual List(Vec2(4, 0), Vec2(16, 16), Vec2(12, 19), Vec2(0, 3))
   }
 
   "edges" in {
-    val r = RotatedRect(Vec2(8, 9.5), Vec2(20, 5), Math.atan(4.0 / 3.0))
-    val e = r.edges.toList
-    val rounded = e.toList.map(l => Line(
-      Vec2(Math.round(l.start.x), Math.round(l.start.y)),
-      Vec2(Math.round(l.end.x), Math.round(l.end.y))
-    ))
+    val r       = RotatedRect(Vec2(8, 9.5), Vec2(20, 5), Math.atan(4.0 / 3.0))
+    val e       = r.edges.toList
+    val rounded = e.toList.map(l =>
+      Line(
+        Vec2(Math.round(l.start.x), Math.round(l.start.y)),
+        Vec2(Math.round(l.end.x), Math.round(l.end.y)),
+      ),
+    )
     rounded mustEqual List(
       Line(Vec2(0, 3), Vec2(4, 0)),
       Line(Vec2(4, 0), Vec2(16, 16)),
       Line(Vec2(16, 16), Vec2(12, 19)),
-      Line(Vec2(12, 19), Vec2(0, 3))
+      Line(Vec2(12, 19), Vec2(0, 3)),
     )
   }
   "PointInside" in {

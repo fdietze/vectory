@@ -10,18 +10,18 @@ object ConvexHullOfCirclesSampling {
   def compress(seq: Seq[Circle]): Seq[Circle] = {
     if (seq.isEmpty) return seq
 
-    def including(a:Circle, b:Circle) = a == b || (a includes b) || (b includes a)
+    def including(a: Circle, b: Circle) = a == b || (a includes b) || (b includes a)
 
     // we also remove consequtive circles which include each other.
     // This can happen, because of sampling inaccuracy
-    val compressed = seq.head :: seq.sliding(2).collect{ case Seq(a, b) if !including(a,b) => b }.toList
-    if (compressed.size > 2 && including(compressed.head,compressed.last)) compressed.init else compressed
+    val compressed = seq.head :: seq.sliding(2).collect { case Seq(a, b) if !including(a, b) => b }.toList
+    if (compressed.size > 2 && including(compressed.head, compressed.last)) compressed.init else compressed
   }
 
   def apply(circles: Seq[Circle]): Seq[Circle] = {
-    val samples = 10
-    val pointToCircle:Map[Vec2,Circle] = circles.flatMap { c => c.sampleCircumference(samples).map(_ -> c) }.toMap
-    val hull = compress(ConvexHull2D(pointToCircle.keys).map(pointToCircle))
+    val samples                          = 10
+    val pointToCircle: Map[Vec2, Circle] = circles.flatMap { c => c.sampleCircumference(samples).map(_ -> c) }.toMap
+    val hull                             = compress(ConvexHull2D(pointToCircle.keys).map(pointToCircle))
     // if (hull.size > 1) (hull :+ hull.head).sliding(2).foreach{ case Seq(c1, c2) => assert(!c1.includes(c2), s"$c1 includes $c2"); assert(!c2.includes(c1), s"$c2 includes $c1") }
     hull.reverse
   }
@@ -116,42 +116,42 @@ object ConvexHullOfCirclesSampling {
 object ConvexHullOfCircles2 {
   case class Arc(circle: Circle, start: Double = 0, end: Double = 2 * Math.PI) {
     val startPos = circle.center + (Vec2.unit(start) * circle.r)
-    val endPos = circle.center + (Vec2.unit(end) * circle.r)
+    val endPos   = circle.center + (Vec2.unit(end) * circle.r)
   }
 
   case class ArcLeaf(arc: Arc, q: Vec2) {
     val startAngle = Line(q, arc.startPos).vector.angle
-    val endAngle = Line(q, arc.endPos).vector.angle
+    val endAngle   = Line(q, arc.endPos).vector.angle
   }
 
   class Arcs(val q: Vec2, var arcs: mutable.ArrayBuffer[ArcLeaf] = mutable.ArrayBuffer.empty[ArcLeaf]) {
-    def isEmpty = arcs.isEmpty
+    def isEmpty            = arcs.isEmpty
     // arcs are stored in clockwise order
     def +=(arc: Arc): Unit = {
       arcs += ArcLeaf(arc, q)
     }
 
-    def cutOut(p: Vec2, circle: Circle) = {
-
-    }
+    def cutOut(p: Vec2, circle: Circle) = {}
 
     def findLeftArc(angle: Double): ArcLeaf = {
-      //TODO: wrap around, modulo
+      // TODO: wrap around, modulo
       arcs.filter(_.endAngle < angle).maxBy(_.endAngle)
     }
 
     def findRightArc(angle: Double): ArcLeaf = {
-      //TODO: wrap around, modulo
+      // TODO: wrap around, modulo
       arcs.filter(_.startAngle > angle).minBy(_.startAngle)
     }
 
     def calculate_p(p_prime: Vec2): Option[Vec2] = {
-      val ray = Line(q, p_prime)
-      val angle = ray.vector.angle
-      val arcOpt = arcs.find(arcLeaf => arcLeaf.startAngle <= angle && angle < arcLeaf.endAngle) // endAngle is exclusive //TODO: wrap around, modulo
-      val p: Vec2 = arcOpt match {
+      val ray    = Line(q, p_prime)
+      val angle  = ray.vector.angle
+      val arcOpt = arcs.find(arcLeaf =>
+        arcLeaf.startAngle <= angle && angle < arcLeaf.endAngle,
+      ) // endAngle is exclusive //TODO: wrap around, modulo
+      val p: Vec2              = arcOpt match {
         case Some(arcLeaf) => (ray intersect arcLeaf.arc.circle).last
-        case None =>
+        case None          =>
           // point does not lie on arc, but on line
           val line = Line(findLeftArc(angle).arc.endPos, findRightArc(angle).arc.startPos)
           (ray intersect line).get.pos
@@ -170,7 +170,7 @@ object ConvexHullOfCircles2 {
   }
 
   class CH(q: Vec2) {
-    val arcs = new Arcs(q)
+    val arcs                 = new Arcs(q)
     def add(c: Circle): Unit = {
       if (arcs.isEmpty) {
         arcs += Arc(c)
@@ -184,7 +184,7 @@ object ConvexHullOfCircles2 {
             val a = ???
           // now walk clockwise to find A1, destroying all arcs traversed
           // and counterclockwise to find A2, destroying all arcs traversed
-          case None => // new circle intersects the hull or is completely inside
+          case None    => // new circle intersects the hull or is completely inside
             ???
         }
       }
@@ -195,8 +195,8 @@ object ConvexHullOfCircles2 {
 
   def hull(circles: Seq[Circle]): collection.Seq[Circle] = {
     val sortedCircles = circles.sortBy(c => -c.r) // sort by radius, biggest first
-    val q: Vec2 = sortedCircles.head.center
-    val ch = new CH(q)
+    val q: Vec2       = sortedCircles.head.center
+    val ch            = new CH(q)
     sortedCircles.foreach(circle => ch.add(circle))
     ch.circles
   }

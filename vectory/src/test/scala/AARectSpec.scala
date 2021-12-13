@@ -32,7 +32,7 @@ class AARectSpec extends AnyFreeSpec with Matchers {
       Line(Vec2(2, 4), Vec2(2, 3)),
       Line(Vec2(2, 3), Vec2(4, 3)),
       Line(Vec2(4, 3), Vec2(4, 4)),
-      Line(Vec2(4, 4), Vec2(2, 4))
+      Line(Vec2(4, 4), Vec2(2, 4)),
     )
   }
 
