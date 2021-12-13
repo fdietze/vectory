@@ -16,7 +16,7 @@ jobs:
       - uses: actions/checkout@v2
         with:
           ref: ${{ github.event.pull_request.head.sha }}
-      # - uses: coursier/cache-action@v6
+      - uses: coursier/cache-action@v6
       - uses: olafurpg/setup-scala@v12
 
       - name: Test
