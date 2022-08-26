@@ -36,6 +36,15 @@ class AARectSpec extends AnyFreeSpec with Matchers {
     )
   }
 
+  "translate" in {
+    val r = AARect.fromCenter(Vec2(4, 4), Vec2(1, 1))
+    val e = r.translated(Vec2(2, 3))
+    e.size mustEqual Vec2(1, 1)
+    e.center mustEqual Vec2(6, 7)
+    e.minCorner mustEqual Vec2(5.5, 6.5)
+    e.maxCorner mustEqual Vec2(6.5, 7.5)
+  }
+
   "PointInside" in {
     val r = AARect.fromCenter(Vec2(3, 3.5), Vec2(2, 1))
     (r includes Vec2(3, 3.5)) mustEqual true
