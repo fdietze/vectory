@@ -34,4 +34,10 @@ final case class AARect(minCorner: Vec2, maxCorner: Vec2) extends ConvexPolygonL
   // TODO: optimized Circle vs AARect collision detection and repsonse
 
   override def intersects(circle: Circle) = Algorithms.intersect(circle, this)
+
+  /**
+   * Translates both corners of this AARect equally by the given Vector
+   */
+  def translated(by: Vec2): AARect =
+    AARect(minCorner + by, maxCorner + by)
 }
