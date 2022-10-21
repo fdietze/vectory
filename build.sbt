@@ -6,7 +6,7 @@ lazy val vectory = crossProject(JVMPlatform, JSPlatform)
     organization       := "com.github.fdietze",
     name               := "vectory",
     version            := "master-SNAPSHOT",
-    crossScalaVersions := Seq("2.12.16", "2.13.8", "3.2.0"),
+    crossScalaVersions := Seq("2.12.16", "2.13.8", "3.1.3"),
     scalaVersion       := crossScalaVersions.value.last,
     scalacOptions --= Seq("-Xfatal-warnings"), // overwrite sbt-tpolecat setting
 
