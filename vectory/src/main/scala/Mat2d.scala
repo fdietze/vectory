@@ -14,7 +14,7 @@ import annotation.meta.field
 ) {
   @inline def inverted: Mat2d = {
     var det = determinant
-    if (det != 0) throw new ArithmeticException("Matrix is not invertible")
+    if (det == 0) throw new ArithmeticException("Matrix is not invertible")
     det = 1 / det
     Mat2d(
       m11 * det,
