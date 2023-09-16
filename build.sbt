@@ -6,13 +6,13 @@ lazy val vectory = crossProject(JVMPlatform, JSPlatform)
     organization       := "com.github.fdietze",
     name               := "vectory",
     version            := "master-SNAPSHOT",
-    crossScalaVersions := Seq("2.12.18", "2.13.11", "3.1.3"),
+    crossScalaVersions := Seq("2.12.18", "2.13.12", "3.1.3"),
     scalaVersion       := crossScalaVersions.value.last,
     scalacOptions --= Seq("-Xfatal-warnings"), // overwrite sbt-tpolecat setting
 
     resolvers += ("jitpack" at "https://jitpack.io"),
     libraryDependencies ++= (
-      "org.scalatest"                 %%% "scalatest" % "3.2.16" % Test ::
+      "org.scalatest"                 %%% "scalatest" % "3.2.17" % Test ::
         "com.github.fdietze.flatland" %%% "flatland"  % "01f4a55" ::
         Nil
     ),
