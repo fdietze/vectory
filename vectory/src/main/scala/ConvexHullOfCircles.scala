@@ -146,15 +146,13 @@ object ConvexHullOfCircles2 {
     def calculate_p(p_prime: Vec2): Option[Vec2] = {
       val ray    = Line(q, p_prime)
       val angle  = ray.vector.angle
-      val arcOpt = arcs.find(arcLeaf =>
-        arcLeaf.startAngle <= angle && angle < arcLeaf.endAngle,
+      val arcOpt = arcs.find(arcLeaf => arcLeaf.startAngle <= angle && angle < arcLeaf.endAngle,
       ) // endAngle is exclusive //TODO: wrap around, modulo
       val p: Vec2              = arcOpt match {
         case Some(arcLeaf) => (ray intersect arcLeaf.arc.circle).last
         case None          =>
           // point does not lie on arc, but on line
-          val line = Line(findLeftArc(angle).arc.endPos, findRightArc(angle).arc.startPos)
-          (ray intersect line).get.pos
+          val line = Line(findLeftArc(angle).arc.endPos, findRightArc(angle).arc.startPos)(ray intersect line).get.pos
       }
       val pIsBetweenQandPPrime = Line(q, p).lengthSq < Line(q, p_prime).lengthSq
       if (pIsBetweenQandPPrime) {
