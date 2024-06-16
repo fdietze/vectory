@@ -16,8 +16,8 @@ lazy val vectory = crossProject(JVMPlatform, JSPlatform)
         "com.github.fdietze.flatland" %%% "flatland"  % "01f4a55" ::
         Nil
     ),
-    scalaJSStage in Test               := FullOptStage,
-    console / initialCommands          := """
+    scalaJSStage in Test      := FullOptStage,
+    console / initialCommands := """
   import vectory._
   """,
   )
