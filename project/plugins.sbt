@@ -4,6 +4,6 @@ addSbtPlugin("org.scala-js"                      % "sbt-scalajs"                
 addSbtPlugin("org.scala-native"                  % "sbt-scala-native"              % "0.5.5")
 addSbtPlugin("com.thoughtworks.sbt-scala-js-map" % "sbt-scala-js-map"              % "4.1.1")
 
-addSbtPlugin("org.typelevel" % "sbt-tpolecat" % "0.5.1")
+addSbtPlugin("org.typelevel" % "sbt-tpolecat" % "0.5.2")
 
 addSbtPlugin("com.github.sbt" % "sbt-git" % "2.0.1")
