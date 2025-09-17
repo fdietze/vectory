@@ -30,7 +30,7 @@ object ConvexHull2D {
 
     var stack: List[Vec2] = Nil
 
-    if (minmax == n - 1) {      // degenerate case: all x-coords == xmin
+    if (minmax == n - 1) { // degenerate case: all x-coords == xmin
       stack ::= verts(minmin)
       if (verts(minmin).y != verts(minmax).y)
         stack ::= verts(minmax) // a nontrivial segment
