@@ -1,3 +1,5 @@
 target/
 *.gpg
 sonatype.sbt
+/.idea
+metals.sbt
