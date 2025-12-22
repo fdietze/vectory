@@ -336,7 +336,7 @@ object Algorithms {
       }
 
       // project the circle(again)
-      max2 = c.r // max is radius
+      max2 = c.r  // max is radius
       min2 = -c.r // min is negative radius
 
       // offset points
