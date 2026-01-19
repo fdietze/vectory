@@ -35,17 +35,17 @@ object Algorithms {
     import Math.{min, max}
     // https://stackoverflow.com/questions/849211/shortest-distance-between-a-point-and-a-line-segment
     // Return minimum distance between line segment vw and point p
-    val p  = Vec2(x0, y0)
-    val v  = Vec2(x1, y1)
-    val w  = Vec2(x2, y2)
-    val l2 = Line(v, w).lengthSq // i.e. |w-v|^2 -  avoid a sqrt
+    val p          = Vec2(x0, y0)
+    val v          = Vec2(x1, y1)
+    val w          = Vec2(x2, y2)
+    val l2         = Line(v, w).lengthSq // i.e. |w-v|^2 -  avoid a sqrt
     if (l2 == 0.0) return Line(p, v).length // v == w case
     // Consider the line extending the segment, parameterized as v + t (w - v).
     // We find projection of point p onto the line.
     // It falls where t = [(p-v) . (w-v)] / |w-v|^2
     // We clamp t from [0,1] to handle points outside the segment vw.
     val t          = max(0, min(1, ((p - v) dot (w - v)) / l2))
-    val projection = v + (w - v) * t // Projection falls on the segment
+    val projection = v + (w - v) * t     // Projection falls on the segment
     return Line(p, projection).length
   }
 
